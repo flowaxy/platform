@@ -19,7 +19,7 @@ final class ThemeRepository implements ThemeRepositoryInterface
     }
 
     /**
-     * @return array<int, Theme>
+     * @return array<int, ThemeEntity>
      */
     public function all(): array
     {
@@ -30,7 +30,7 @@ final class ThemeRepository implements ThemeRepositoryInterface
             $slug = basename($dir);
             $config = $this->loadThemeConfig($slug);
 
-            $themes[] = new Theme(
+            $themes[] = new ThemeEntity(
                 slug: $config['slug'] ?? $slug,
                 name: $config['name'] ?? ucfirst($slug),
                 version: $config['version'] ?? '1.0.0',
@@ -44,7 +44,7 @@ final class ThemeRepository implements ThemeRepositoryInterface
         return $themes;
     }
 
-    public function find(string $slug): ?Theme
+    public function find(string $slug): ?ThemeEntity
     {
         foreach ($this->all() as $theme) {
             if ($theme->slug === $slug) {
@@ -55,7 +55,7 @@ final class ThemeRepository implements ThemeRepositoryInterface
         return null;
     }
 
-    public function getActive(): ?Theme
+    public function getActive(): ?ThemeEntity
     {
         $slug = $this->fetchActiveSlug();
 

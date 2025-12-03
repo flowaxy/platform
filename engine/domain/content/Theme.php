@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-final class Theme
+final class ThemeEntity
 {
     public function __construct(
         public readonly string $slug,

@@ -365,9 +365,7 @@ if (!function_exists('buildClassMap')) {
                 'StorageManager' => "{$C}support/managers/StorageManager.php",
                 'StorageFactory' => "{$C}support/managers/StorageFactory.php",
                 'ThemeManager' => "{$C}support/managers/ThemeManager.php",
-                'ThemeEditorManager' => "{$C}support/managers/ThemeEditorManager.php",
                 'RoleManager' => "{$C}support/managers/RoleManager.php",
-                'ThemeCustomizer' => "{$C}support/managers/ThemeCustomizer.php",
                 'SettingsManager' => "{$C}support/managers/SettingsManager.php",
             ],
             // Core - System
@@ -427,7 +425,7 @@ if (!function_exists('buildClassMap')) {
             ],
             // Domain
             [
-                'Theme' => "{$D}content/Theme.php",
+                'ThemeEntity' => "{$D}content/Theme.php",
                 'ThemeRepositoryInterface' => "{$D}content/ThemeRepositoryInterface.php",
                 'ThemeSettingsRepositoryInterface' => "{$D}content/ThemeSettingsRepositoryInterface.php",
                 'AdminUser' => "{$D}content/AdminUser.php",

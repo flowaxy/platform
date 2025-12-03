@@ -167,6 +167,15 @@ function renderMenuItem($item, $currentPage, $isMobile = false)
 {
     $hasSubmenu = isset($item['submenu']) && ! empty($item['submenu']);
     $target = isset($item['target']) ? ' target="' . $item['target'] . '"' : '';
+    
+    // Автоматично створюємо href з slug, якщо href не вказано
+    if (!isset($item['href']) && isset($item['slug'])) {
+        $item['href'] = UrlHelper::admin($item['slug']);
+        $item['page'] = $item['slug'];
+    }
+    if (!isset($item['href'])) {
+        $item['href'] = '#';
+    }
 
     // Отримуємо параметр tab з URL один раз
     $request = Request::getInstance();
@@ -253,6 +262,15 @@ function renderMenuItem($item, $currentPage, $isMobile = false)
             echo '</a>';
             echo '<ul class="submenu">';
             foreach ($item['submenu'] as $subItem) {
+                // Автоматично створюємо href з slug для підменю
+                if (!isset($subItem['href']) && isset($subItem['slug'])) {
+                    $subItem['href'] = UrlHelper::admin($subItem['slug']);
+                    $subItem['page'] = $subItem['slug'];
+                }
+                if (!isset($subItem['href'])) {
+                    $subItem['href'] = '#';
+                }
+                
                 // Визначаємо активний пункт підменю з урахуванням tab
                 $subActive = false;
                 if (isset($subItem['page'])) {

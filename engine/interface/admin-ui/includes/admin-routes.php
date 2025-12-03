@@ -47,9 +47,13 @@ hook_dispatch('admin_register_routes', $router);
 
 // Реєструємо маршрути плагінів
 $activePlugins = pluginManager()->getActivePlugins();
+
+// Плагіни, які самі реєструють маршрути через хук admin_register_routes
+$selfRegisteredPlugins = ['example', 'theme-customizer', 'theme-editor'];
+
 foreach ($activePlugins as $slug => $plugin) {
-    // Пропускаємо плагін example - він не має адмін-сторінки
-    if ($slug === 'example') {
+    // Пропускаємо плагіни, які самі реєструють маршрути
+    if (in_array($slug, $selfRegisteredPlugins, true)) {
         continue;
     }
 

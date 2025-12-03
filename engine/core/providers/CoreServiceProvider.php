@@ -94,7 +94,6 @@ final class CoreServiceProvider extends ServiceProvider
         // Менеджери системи
         $this->container->singleton(SettingsManager::class, static fn () => SettingsManager::getInstance());
         $this->container->singleton(RoleManager::class, static fn () => RoleManager::getInstance());
-        $this->container->singleton(ThemeEditorManager::class, static fn () => ThemeEditorManager::getInstance());
 
         // ThemeManager наслідується від BaseModule, тому має getInstance() звідти
         $this->container->singleton(ThemeManager::class, static fn () => ThemeManager::getInstance());

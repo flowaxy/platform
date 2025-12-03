@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 final class FakeThemeRepository implements ThemeRepositoryInterface
 {
-    /** @var array<string,Theme> */
+    /** @var array<string,ThemeEntity> */
     public array $themes = [];
 
     public ?string $activeSlug = null;
 
     /**
-     * @return array<int, Theme>
+     * @return array<int, ThemeEntity>
      */
     public function all(): array
     {
         return array_values($this->themes);
     }
 
-    public function find(string $slug): ?Theme
+    public function find(string $slug): ?ThemeEntity
     {
         return $this->themes[$slug] ?? null;
     }
@@ -41,7 +41,7 @@ final class FakeThemeRepository implements ThemeRepositoryInterface
         return true;
     }
 
-    public function getActive(): ?Theme
+    public function getActive(): ?ThemeEntity
     {
         return $this->activeSlug ? ($this->themes[$this->activeSlug] ?? null) : null;
     }
