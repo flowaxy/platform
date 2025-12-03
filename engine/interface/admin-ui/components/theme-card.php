@@ -30,6 +30,7 @@ if (! isset($hasSettings)) {
 
 $pluginManagerInstance = function_exists('pluginManager') ? pluginManager() : null;
 $themeEditorPluginActive = $pluginManagerInstance && method_exists($pluginManagerInstance, 'isPluginActive') && $pluginManagerInstance->isPluginActive('theme-editor');
+$themeCustomizerPluginActive = $pluginManagerInstance && method_exists($pluginManagerInstance, 'isPluginActive') && $pluginManagerInstance->isPluginActive('theme-customizer');
 
 $themeName = htmlspecialchars($theme['name'] ?? 'Неизвестная тема');
 $themeSlug = htmlspecialchars($theme['slug'] ?? '');
@@ -128,12 +129,12 @@ $hasEditAccess = ($userId === 1) || (function_exists('current_user_can') && curr
                 <?php endif; ?>
             <?php else: ?>
                 <div class="d-flex gap-2 flex-wrap">
-                    <?php if ($supportsCustomization && $hasCustomizeAccess): ?>
+                    <?php if ($supportsCustomization && $hasCustomizeAccess && $themeCustomizerPluginActive): ?>
                         <?php
                     $text = 'Кастомізація';
                         $type = 'primary';
                         $icon = 'paint-brush';
-                        $url = UrlHelper::admin('customizer');
+                        $url = UrlHelper::admin('theme-customizer');
                         unset($attributes);
                         include __DIR__ . '/button.php';
                         ?>
@@ -208,10 +209,10 @@ if ($canDeactivate):
                         </form>
                     <?php endif; ?>
                     
-                    <?php if ($hasEditAccess && ! $themeEditorPluginActive): ?>
-                        <span class="text-muted small d-inline-flex align-items-center">
-                            <i class="fas fa-plug me-1"></i>Активуйте плагін Theme Editor для редагування файлів.
-                        </span>
+                    <?php if (($features['customization'] ?? false) && !$themeCustomizerPluginActive): ?>
+                    <span class="text-muted small d-block mt-2">
+                        <i class="fas fa-info-circle me-1"></i>Встановіть плагін <strong>theme-customizer</strong> для розблокування Кастомізації
+                    </span>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
