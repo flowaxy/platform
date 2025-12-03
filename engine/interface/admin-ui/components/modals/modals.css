@@ -1,0 +1,464 @@
+/**
+ * Стилі модальних вікон - Corporate Flat Design
+ */
+
+/* ========================================
+   БАЗОВІ СТИЛІ МОДАЛЬНИХ ВІКОН
+   ======================================== */
+.modal-content {
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.modal-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 20px;
+}
+
+.modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.modal-header .btn-close {
+    opacity: 0.6;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+    background: #ffffff;
+}
+
+.modal-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* ========================================
+   КНОПКИ В МОДАЛЬНИХ ВІКНАХ
+   ======================================== */
+.modal-footer .btn {
+    min-width: 100px;
+    height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-footer .btn-secondary {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.modal-footer .btn-secondary:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.modal-footer .btn-primary {
+    background: #2563eb;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+}
+
+.modal-footer .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.modal-footer .btn-primary i {
+    color: #ffffff;
+}
+
+/* ========================================
+   КОМПОНЕНТ ЗАВАНТАЖЕННЯ ФАЙЛІВ
+   ======================================== */
+.upload-field {
+    margin-bottom: 0;
+}
+
+.upload-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.upload-label .required {
+    color: #dc2626;
+}
+
+.upload-dropzone {
+    position: relative;
+    border: 1px dashed #d1d5db;
+    border-radius: 4px;
+    background: #f9fafb;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.upload-dropzone:hover {
+    border-color: #2563eb;
+    background: #f3f4f6;
+}
+
+.upload-dropzone.dragover {
+    border-color: #2563eb;
+    border-style: solid;
+    background: #eff6ff;
+}
+
+.upload-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.upload-content {
+    pointer-events: none;
+}
+
+.upload-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: #2563eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-icon i {
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.upload-dropzone:hover .upload-icon {
+    background: #1d4ed8;
+}
+
+.upload-text {
+    margin-bottom: 8px;
+}
+
+.upload-primary {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.upload-secondary {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.upload-link {
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.upload-dropzone:hover .upload-link {
+    color: #1d4ed8;
+}
+
+.upload-hint {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.upload-info {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.upload-options {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.upload-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #374151;
+    cursor: pointer;
+}
+
+.upload-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #2563eb;
+    cursor: pointer;
+}
+
+/* ========================================
+   СПИСОК ЗАВАНТАЖЕНИХ ФАЙЛІВ
+   ======================================== */
+.upload-files {
+    margin-top: 12px;
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.upload-files:empty {
+    display: none;
+    margin-top: 0;
+}
+
+.upload-file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.upload-file-item:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.upload-file-item:last-child {
+    margin-bottom: 0;
+}
+
+.upload-file-icon {
+    width: 36px;
+    height: 36px;
+    background: #eff6ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.upload-file-icon i {
+    font-size: 16px;
+    color: #2563eb;
+}
+
+.upload-file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.upload-file-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.upload-file-size {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.upload-file-remove {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+}
+
+.upload-file-remove:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.upload-file-remove:focus {
+    outline: none;
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+/* ========================================
+   ПРОГРЕС ТА РЕЗУЛЬТАТ
+   ======================================== */
+.upload-progress {
+    margin-top: 16px;
+}
+
+.upload-progress .progress {
+    height: 4px;
+    border-radius: 2px;
+    background: #e5e7eb;
+}
+
+.upload-progress .progress-bar {
+    background: #2563eb;
+    border-radius: 2px;
+}
+
+.upload-result {
+    margin-top: 12px;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 4px;
+}
+
+.upload-result.success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.upload-result.error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+/* ========================================
+   КОМПОНЕНТ ПІДТВЕРДЖЕННЯ
+   ======================================== */
+.confirm-content {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.confirm-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-icon.warning {
+    background: #fef3c7;
+}
+
+.confirm-icon.warning i {
+    font-size: 24px;
+    color: #d97706;
+}
+
+.confirm-icon.danger {
+    background: #fee2e2;
+}
+
+.confirm-icon.danger i {
+    font-size: 24px;
+    color: #dc2626;
+}
+
+.confirm-icon.info {
+    background: #dbeafe;
+}
+
+.confirm-icon.info i {
+    font-size: 24px;
+    color: #2563eb;
+}
+
+.confirm-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 8px;
+}
+
+.confirm-message {
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* ========================================
+   КОМПОНЕНТ ФОРМИ
+   ======================================== */
+.form-modal .form-group {
+    margin-bottom: 16px;
+}
+
+.form-modal .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-modal .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.form-modal .form-control {
+    height: 36px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 0 12px;
+}
+
+.form-modal .form-control:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.form-modal textarea.form-control {
+    height: auto;
+    padding: 10px 12px;
+    min-height: 80px;
+}
+
+.form-modal .form-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+

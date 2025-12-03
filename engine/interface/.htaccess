@@ -1,0 +1,21 @@
+# Включаем mod_rewrite
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /admin/
+    
+    # Если файл или директория существует, показываем их
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Исключаем реальные файлы (CSS, JS, изображения)
+    RewriteCond %{REQUEST_URI} !\.(css|js|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)$ [NC]
+    
+    # Перенаправляем все остальное на index.php
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>
+
+# Безопасность
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>

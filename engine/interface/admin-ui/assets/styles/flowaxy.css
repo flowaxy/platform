@@ -1,0 +1,2665 @@
+/* ========================================
+   ЧИСТЫЕ СТИЛИ АДМИН-ПАНЕЛИ
+   ======================================== */
+
+/* CSS переменные (синхронізуються з design-tokens.json) */
+:root {
+    --font-family-base: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: 'Fira Code', 'SFMono-Regular', Consolas, Monaco, Menlo, monospace;
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-md: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --line-height-tight: 1.3;
+    --line-height-normal: 1.45;
+    --line-height-relaxed: 1.6;
+    --space-2xs: 4px;
+    --space-xs: 8px;
+    --space-sm: 12px;
+    --space-md: 16px;
+    --space-lg: 20px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --radius-pill: 999px;
+    --color-primary-50: #eff6ff;
+    --color-primary-100: #dbeafe;
+    --color-primary-200: #bfdbfe;
+    --color-primary-300: #93c5fd;
+    --color-primary-400: #60a5fa;
+    --color-primary-500: #3b82f6;
+    --color-primary-600: #2563eb;
+    --color-primary-700: #1d4ed8;
+    --color-primary-800: #1e40af;
+    --color-primary-900: #1e3a8a;
+    --color-neutral-50: #f8fafc;
+    --color-neutral-100: #f1f5f9;
+    --color-neutral-200: #e2e8f0;
+    --color-neutral-300: #cbd5f5;
+    --color-neutral-400: #94a3b8;
+    --color-neutral-500: #64748b;
+    --color-neutral-600: #475569;
+    --color-neutral-700: #334155;
+    --color-neutral-800: #1e293b;
+    --color-neutral-900: #0f172a;
+    --color-success-500: #22c55e;
+    --color-warning-500: #eab308;
+    --color-danger-500: #ef4444;
+    --surface-0: #ffffff;
+    --surface-1: #f8fafc;
+    --surface-2: #eef2ff;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-subtle: rgba(15, 23, 42, 0.05);
+    --shadow-0: 0 0 0 rgba(0, 0, 0, 0);
+    --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.08);
+    --shadow-2: 0 8px 24px rgba(15, 23, 42, 0.12);
+    --shadow-3: 0 20px 40px rgba(15, 23, 42, 0.16);
+    --header-bg: linear-gradient(135deg, #23282d 0%, #2c3338 100%);
+    --header-border: #333;
+    --header-height: 40px;
+    --header-height-mobile: 48px;
+    --sidebar-width: 192px;
+    --sidebar-collapsed-width: 36px;
+    
+    /* Основні кольори для кнопок */
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --primary-light: #3b82f6;
+}
+
+/* Основні стилі */
+body {
+    padding: 0;
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-md);
+    line-height: var(--line-height-normal);
+    color: var(--text-primary);
+    background: var(--surface-1);
+}
+
+/* ========================================
+   HEADER
+   ======================================== */
+.navbar {
+    background: var(--header-bg) !important;
+    height: var(--header-height) !important;
+    min-height: var(--header-height) !important;
+    padding: 0 !important;
+    border: 2px solid var(--header-border);
+    border-bottom: none;
+    border-top: none;
+    box-shadow: none;
+    top: 0 !important;
+}
+
+.navbar .container-fluid {
+    display: flex !important;
+    height: var(--header-height) !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 0 16px !important;
+}
+
+/* Логотип */
+.header-logo {
+    display: flex;
+    align-items: center;
+    padding: 4px 0;
+    text-decoration: none;
+}
+
+.admin-logo-img {
+    height: 28px;
+    width: auto;
+    max-width: 160px;
+    object-fit: contain;
+    display: block;
+    border-radius: 6px;
+    padding: 2px 8px;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.header-logo:hover .admin-logo-img {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+/* Общий стиль для всех кнопок в header */
+.header-dropdown-btn,
+.header-view-site-btn,
+.header-quick-action-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 12px !important;
+    border: none !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #a0a5aa !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    transition: background 0.15s ease, color 0.15s ease !important;
+    box-shadow: none !important;
+    outline: none !important;
+    position: relative;
+    white-space: nowrap;
+}
+
+.header-dropdown-btn,
+.header-view-site-btn {
+    width: 32px;
+    padding: 0 !important;
+}
+
+.header-dropdown-btn:hover,
+.header-view-site-btn:hover,
+.header-quick-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+.header-dropdown-btn:focus,
+.header-dropdown-btn:active,
+.header-view-site-btn:focus,
+.header-view-site-btn:active,
+.header-quick-action-btn:focus,
+.header-quick-action-btn:active {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.header-dropdown-btn::after {
+    display: none !important;
+}
+
+.header-view-site-btn span {
+    display: none !important;
+}
+
+/* Иконки быстрого доступа - соединенные кнопки */
+.header-quick-actions {
+    gap: 0;
+    border-radius: 8px;
+    overflow: visible !important;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.header-quick-action-btn {
+    border-radius: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+}
+
+.header-quick-action-btn:first-child {
+    border-top-left-radius: 8px !important;
+    border-bottom-left-radius: 8px !important;
+}
+
+.header-quick-action-btn:last-child {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+/* Кнопка Интеграции - должна быть в том же стиле, что и другие */
+#integrations-dropdown-toggle {
+    border-radius: 0 !important;
+}
+
+.integrations-dropdown-wrapper:last-child #integrations-dropdown-toggle {
+    border-top-right-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+.header-quick-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.header-quick-action-btn.active {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.header-quick-action-btn i {
+    font-size: 14px;
+    margin-right: 6px;
+}
+
+.header-quick-action-btn span {
+    font-size: 13px;
+}
+
+/* Мобильная версия header */
+@media (max-width: 767.98px) {
+    .navbar {
+        height: var(--header-height-mobile) !important;
+        min-height: var(--header-height-mobile) !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .navbar .container-fluid {
+        height: var(--header-height-mobile) !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0 12px !important;
+        width: 100% !important;
+    }
+    
+    .navbar .container-fluid > div:first-child {
+        flex-shrink: 0 !important;
+        min-width: auto !important;
+    }
+    
+    /* Мобильная версия логотипа - оставляем как есть */
+    .admin-logo-img {
+        height: 32px;
+        width: auto;
+        max-width: 140px;
+        border-radius: 8px;
+        padding: 2px;
+    }
+    
+    .header-dropdown-btn,
+    .header-view-site-btn,
+    .header-quick-action-btn {
+        width: 32px !important;
+        min-width: 32px !important;
+        max-width: 32px !important;
+        height: 32px !important;
+        padding: 0 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .navbar .container-fluid > div:last-child,
+    .header-right-actions {
+        display: flex !important;
+        align-items: center !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+        justify-content: flex-end !important;
+        width: auto !important;
+        min-width: auto !important;
+        max-width: none !important;
+        flex-grow: 0 !important;
+        gap: 8px !important;
+    }
+    
+    /* Убеждаемся, что все дочерние элементы выравниваются правильно */
+    .header-right-actions > * {
+        flex-shrink: 0 !important;
+        margin: 0 !important;
+    }
+    
+    .header-quick-actions {
+        background: transparent !important;
+        gap: 8px !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    /* Dropdown контейнеры в header должны быть position: relative */
+    .header-right-actions .dropdown {
+        position: relative !important;
+        display: inline-block !important;
+    }
+    
+    /* Убеждаемся, что dropdown меню позиционируются правильно */
+    .header-right-actions .dropdown-menu {
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 8px) !important;
+        margin-top: 0 !important;
+        transform: none !important;
+        display: none !important;
+        z-index: 1060 !important;
+    }
+    
+    /* Bootstrap show класс для отображения dropdown */
+    .header-right-actions .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    /* Для Bootstrap 5 */
+    .header-right-actions .dropdown-menu[data-bs-popper] {
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 8px) !important;
+        margin-top: 0 !important;
+        transform: none !important;
+    }
+    
+    /* Для интеграций dropdown */
+    .header-right-actions .integrations-dropdown-wrapper {
+        position: relative !important;
+        display: inline-block !important;
+    }
+    
+    .header-right-actions .integrations-dropdown-menu {
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 8px) !important;
+        margin-top: 0 !important;
+        transform: none !important;
+        z-index: 1060 !important;
+    }
+    
+    /* На мобильных каждая кнопка должна быть отдельной с отступами */
+    .header-quick-actions .header-quick-action-btn {
+        margin: 0 !important;
+        border-radius: 8px !important;
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .header-quick-action-btn {
+        border-radius: 8px !important;
+    }
+    
+    /* На мобильных все кнопки должны быть отдельными с одинаковыми скруглениями */
+    .header-quick-action-btn:first-child,
+    .header-quick-action-btn:last-child,
+    .header-quick-action-btn {
+        border-radius: 8px !important;
+    }
+    
+    .header-quick-action-btn:not(.active) {
+        background: rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    .header-quick-action-btn.active {
+        background: rgba(255, 255, 255, 0.3) !important;
+        color: #ffffff !important;
+    }
+    
+    .header-quick-action-btn span {
+        display: none !important;
+    }
+    
+    /* На мобильных убираем отступы у иконок для точного центрирования */
+    .header-quick-action-btn i {
+        margin: 0 !important;
+        line-height: 1 !important;
+    }
+    
+    /* Dropdown меню Интеграции на мобильных - плоский строгий дизайн как на ПК */
+    .integrations-dropdown-wrapper {
+        position: relative !important;
+        display: inline-block !important;
+    }
+    
+    .integrations-dropdown-menu {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        left: auto !important;
+        margin-top: 0 !important;
+        z-index: 1055 !important;
+        min-width: 180px !important;
+        max-width: calc(100vw - 24px) !important;
+        display: none !important;
+        opacity: 0;
+        visibility: hidden;
+        transform: none;
+        transition: opacity 0.15s ease, visibility 0.15s ease;
+        pointer-events: none;
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+    
+    .integrations-dropdown-wrapper.show .integrations-dropdown-menu,
+    .integrations-dropdown-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        pointer-events: auto !important;
+    }
+    
+    .integrations-dropdown-menu .dropdown-item {
+        border-radius: 0 !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        transition: background-color 0.15s ease !important;
+        color: #333 !important;
+        white-space: nowrap;
+        border-bottom: 1px solid #f0f0f0 !important;
+        background: transparent !important;
+    }
+    
+    .integrations-dropdown-menu .dropdown-item:last-child {
+        border-bottom: none !important;
+    }
+    
+    .integrations-dropdown-menu .dropdown-item:hover,
+    .integrations-dropdown-menu .dropdown-item:active {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        transform: none !important;
+    }
+    
+    .integrations-dropdown-menu .dropdown-item.active {
+        background: #0073aa !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        border-bottom-color: #0073aa !important;
+    }
+    
+    .integrations-dropdown-menu .dropdown-item.active:hover {
+        background: #005a87 !important;
+        color: #ffffff !important;
+    }
+    
+    .header-logo {
+        text-decoration: none !important;
+    }
+    
+    /* Плоский строгий дизайн для всех dropdown меню */
+    .dropdown-menu {
+        border: 1px solid #ddd !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin-top: 8px !important;
+        z-index: 1050 !important;
+        min-width: 180px !important;
+        background: #ffffff !important;
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: 100% !important;
+        transform: none !important;
+    }
+    
+    /* Dropdown контейнеры должны быть position: relative */
+    .dropdown {
+        position: relative !important;
+    }
+    
+    .dropdown-menu .dropdown-item {
+        border-radius: 0 !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        transition: background-color 0.15s ease !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        background: transparent !important;
+    }
+    
+    .dropdown-menu .dropdown-item:last-child {
+        border-bottom: none !important;
+    }
+    
+    .dropdown-menu .dropdown-item:hover,
+    .dropdown-menu .dropdown-item:focus {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        transform: none !important;
+    }
+    
+    .dropdown-menu .dropdown-item.active {
+        background: #0073aa !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    .dropdown-menu .dropdown-item.active:hover {
+        background: #005a87 !important;
+        color: #ffffff !important;
+    }
+    
+    /* Специальные стили для dropdown меню Интеграции */
+    .integrations-dropdown-wrapper {
+        position: relative !important;
+        display: inline-block !important;
+    }
+    
+    .integrations-dropdown-menu {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        left: auto !important;
+        margin-top: 0 !important;
+        z-index: 1055 !important;
+        min-width: 180px !important;
+        display: none !important;
+        opacity: 0;
+        visibility: hidden;
+        transform: none !important;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        pointer-events: none;
+    }
+    
+    .integrations-dropdown-wrapper.show .integrations-dropdown-menu,
+    .integrations-dropdown-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Убираем overflow: hidden для контейнера с dropdown */
+    .header-right-actions {
+        overflow: visible !important;
+    }
+    
+    .header-quick-actions {
+        overflow: visible !important;
+    }
+    
+    .dropdown-item {
+        border-radius: 0 !important;
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        transition: background-color 0.15s ease !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+    }
+    
+    .dropdown-item:last-child {
+        border-bottom: none !important;
+    }
+    
+    .dropdown-item:hover {
+        background: #f5f5f5 !important;
+        color: #333 !important;
+        transform: none !important;
+    }
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.sidebar {
+    position: fixed !important;
+    top: var(--header-height) !important;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #23282d !important;
+    height: calc(100vh - var(--header-height)) !important;
+    width: var(--sidebar-width) !important;
+    max-width: var(--sidebar-width) !important;
+    border: none;
+    border-top: none !important;
+    display: block !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed-width) !important;
+}
+
+.sidebar-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* WordPress Menu */
+.wp-menu {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.wp-menu .nav-item {
+    margin: 0;
+    border-bottom: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.wp-menu .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 18px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+    transition: all 0.2s ease;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-weight: 400;
+}
+
+.wp-menu .nav-link:hover {
+    color: white !important;
+    background-color: #32373c !important;
+}
+
+.wp-menu .nav-link.active {
+    color: white !important;
+    background-color: #0073aa !important;
+}
+
+.wp-menu .nav-link.active i {
+    color: white !important;
+}
+
+.wp-menu .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #00a0d2;
+}
+
+.wp-menu .nav-link i {
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+    text-align: center;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.wp-menu .menu-text {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .menu-text {
+    display: none;
+}
+
+/* Субменю */
+.sidebar .has-submenu {
+    position: relative;
+}
+
+.sidebar .submenu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.sidebar .submenu-arrow {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.3s ease;
+}
+
+.sidebar .has-submenu.open .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.sidebar .submenu {
+    max-height: 0;
+    overflow: hidden;
+    background: #1a1d21;
+    transition: max-height 0.3s ease;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-top: 1px solid #32373c;
+}
+
+.sidebar .has-submenu.open .submenu {
+    border-top: 1px solid #32373c;
+}
+
+.sidebar .has-submenu.open .submenu {
+    max-height: 500px;
+}
+
+/* Пустое состояние сайдбара */
+.sidebar-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.sidebar-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: #32373c;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.5rem;
+}
+
+.sidebar-empty-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #a0a5aa;
+    margin: 0 0 8px 0;
+}
+
+.sidebar-empty-hint {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.sidebar .submenu li {
+    margin: 0;
+    border-bottom: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.sidebar .submenu li:last-child {
+    border-bottom: none;
+}
+
+.sidebar .submenu a {
+    display: flex;
+    align-items: center;
+    padding: 7px 15px 7px 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 18px;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-weight: 400;
+}
+
+.sidebar .submenu a i {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    text-align: center;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.9;
+    color: white;
+}
+
+.sidebar .submenu a:hover {
+    color: white;
+    background-color: #32373c;
+}
+
+.sidebar .submenu a:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #00a0d2;
+}
+
+.sidebar .submenu a.active {
+    color: white;
+    background-color: #32373c;
+    font-weight: 400;
+}
+
+.sidebar .submenu a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: white;
+}
+
+.sidebar .submenu a.active::after {
+    content: '\f054';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 10px;
+}
+
+.sidebar .submenu a.active i {
+    color: white;
+}
+
+/* ========================================
+   ОСНОВНОЙ КОНТЕНТ
+   ======================================== */
+main.col-md-9.ms-sm-auto.col-lg-10 {
+    margin-top: var(--header-height) !important;
+    margin-left: var(--sidebar-width) !important;
+    margin-right: 0 !important;
+    min-height: calc(100vh - var(--header-height)) !important;
+    width: calc(100% - var(--sidebar-width)) !important;
+    max-width: calc(100% - var(--sidebar-width)) !important;
+    position: relative;
+    background: var(--bg-light);
+    border: none;
+    padding: 0 !important;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.admin-content-container {
+    background: var(--bg-light);
+    margin: 0;
+    min-height: calc(100vh - 32px);
+    border: none;
+    position: relative;
+    padding: 15px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* Ограничения для container-fluid в админке */
+body .container-fluid {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+}
+
+body .container-fluid > .row {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+}
+
+.sidebar.collapsed ~ .container-fluid main.col-md-9.ms-sm-auto.col-lg-10 {
+    margin-left: var(--sidebar-collapsed-width) !important;
+    width: calc(100% - var(--sidebar-collapsed-width)) !important;
+}
+
+/* Исключение для page-header - переопределяем глобальные стили */
+.page-header .container-fluid {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+}
+
+/* ========================================
+   ЗАГОЛОВОК СТРАНИЦЫ
+   ======================================== */
+.page-header {
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0;
+    margin: 0.875rem 0 1.5rem 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.page-header .container-fluid {
+    padding: 0.875rem 20px !important;
+    margin: 0 !important;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Хлебные крошки */
+/* Хлібні крихти - окремий блок з прозорим фоном */
+.page-breadcrumbs-wrapper {
+    background: transparent;
+    padding: 0.875rem 0 0.875rem 0;
+    margin: 0;
+    border-bottom: none;
+}
+
+.page-breadcrumbs-wrapper .container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.page-breadcrumbs {
+    margin: 0;
+    padding: 0;
+}
+
+.page-breadcrumbs .breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.page-breadcrumbs .breadcrumb-item {
+    display: flex;
+    align-items: center;
+}
+
+.page-breadcrumbs .breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    display: inline-block;
+    padding: 0 0.5rem;
+    color: #6c757d;
+    font-weight: 400;
+}
+
+.page-breadcrumbs .breadcrumb-item a {
+    color: #0073aa;
+    text-decoration: none;
+    transition: color 0.15s ease;
+    font-size: 13px;
+}
+
+.page-breadcrumbs .breadcrumb-item a:hover {
+    color: #005a87;
+    text-decoration: none;
+}
+
+.page-breadcrumbs .breadcrumb-item.active {
+    color: #23282d;
+    font-weight: 500;
+    font-size: 13px;
+}
+
+.page-header-content {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.page-title-section {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+    flex-shrink: 1;
+}
+
+.page-icon-wrapper {
+    display: flex;
+    align-items: center;
+    padding-right: 1rem;
+    margin-right: 1rem;
+    border-right: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    align-self: stretch;
+    min-height: 100%;
+}
+
+.page-icon {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.page-icon i {
+    font-size: 1.5rem;
+    color: #495057;
+    line-height: 1;
+    display: block;
+    opacity: 0.8;
+}
+
+.page-title-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    line-height: 1.2;
+    flex: 1;
+    align-self: stretch;
+}
+
+.page-title-content h1 {
+    color: #212529;
+    font-weight: 600;
+    margin: 0 0 0.25rem 0;
+    padding: 0;
+    font-size: 1.5rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.page-description {
+    color: #6c757d;
+    font-size: 0.875rem;
+    margin: 0;
+    padding: 0;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.page-actions .btn {
+    white-space: nowrap;
+    border-radius: 0;
+    font-weight: 500;
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.5;
+    vertical-align: middle;
+    height: 36px;
+    border: 1px solid;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    gap: 0.5rem;
+}
+
+.page-actions .btn i,
+.page-actions .btn .btn-icon {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+    font-size: 0.875rem;
+}
+
+/* Високоспецифічні стилі для кнопки завантаження плагіна */
+.page-actions button.btn.btn-primary,
+.page-actions .btn.btn-primary,
+.page-actions .btn-primary {
+    background-color: #0073aa !important;
+    background: #0073aa !important;
+    border-color: #0073aa !important;
+    border: 1px solid #0073aa !important;
+    color: #ffffff !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+.page-actions button.btn.btn-primary:hover,
+.page-actions .btn.btn-primary:hover,
+.page-actions .btn-primary:hover {
+    background-color: #005a87 !important;
+    background: #005a87 !important;
+    border-color: #005a87 !important;
+    color: #ffffff !important;
+}
+
+.page-actions button.btn.btn-primary i,
+.page-actions button.btn.btn-primary [class^="fas"],
+.page-actions button.btn.btn-primary [class*=" fa-"],
+.page-actions .btn.btn-primary i,
+.page-actions .btn.btn-primary [class^="fas"],
+.page-actions .btn.btn-primary [class*=" fa-"],
+.page-actions .btn-primary i,
+.page-actions .btn-primary [class^="fas"],
+.page-actions .btn-primary [class*=" fa-"] {
+    color: #ffffff !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline-flex !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+.page-actions button.btn.btn-primary .btn-text,
+.page-actions .btn.btn-primary .btn-text,
+.page-actions .btn-primary .btn-text {
+    color: #ffffff !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: inline !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+}
+
+.page-actions .btn-primary:hover {
+    background-color: #005a87;
+    border-color: #005a87;
+    color: #ffffff;
+}
+
+.page-actions .btn-outline-primary {
+    border-color: #0073aa;
+    color: #0073aa;
+    background: transparent;
+}
+
+.page-actions .btn-outline-primary:hover {
+    background: #0073aa;
+    border-color: #0073aa;
+    color: #fff;
+}
+
+/* На мобільних, планшетах та середніх екранах приховуємо текст кнопок в page-header (тільки іконки) */
+@media (max-width: 1399.98px) {
+    .page-actions .btn {
+        padding: 0 !important;
+        min-width: 36px !important;
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        position: relative !important;
+    }
+    
+    .page-actions .btn .btn-text {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+    }
+    
+    .page-actions .btn i,
+    .page-actions .btn .btn-icon,
+    .page-actions .btn [class^="fas"],
+    .page-actions .btn [class*=" fa-"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+        line-height: 1 !important;
+        font-size: 1rem !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+    
+    /* Приховуємо будь-який текстовий контент */
+    .page-actions .btn > *:not(i):not(.btn-icon):not([class^="fas"]):not([class*=" fa-"]) {
+        display: none !important;
+    }
+}
+
+/* На великих ПК показуємо іконки та текст */
+@media (min-width: 1400px) {
+    .page-actions .btn {
+        padding: 8px 16px !important;
+        gap: 0.5rem !important;
+    }
+    
+    .page-actions .btn .btn-text {
+        display: inline !important;
+    }
+    
+    .page-actions .btn i,
+    .page-actions .btn .btn-icon,
+    .page-actions .btn [class^="fas"],
+    .page-actions .btn [class*=" fa-"] {
+        margin-right: 0.5rem !important;
+        margin-left: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        margin-bottom: 1.25rem;
+    }
+    
+    .page-header .container-fluid {
+        padding: 0.75rem 16px !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    
+    .page-breadcrumbs-wrapper {
+        padding: 0.75rem 0 0 0;
+    }
+    
+    .page-breadcrumbs-wrapper .container-fluid {
+        padding-left: 16px;
+        padding-right: 16px;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
+    
+    .page-breadcrumbs .breadcrumb {
+        font-size: 0.8rem;
+    }
+    
+    .page-title-section {
+        gap: 0;
+        align-items: stretch;
+        flex-wrap: nowrap;
+    }
+    
+    .page-icon-wrapper {
+        padding-right: 0.625rem;
+        margin-right: 0.625rem;
+        align-self: stretch;
+        min-height: 44px;
+    }
+    
+    .page-icon {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .page-icon i {
+        font-size: 1.1rem;
+    }
+    
+    .page-title-content {
+        min-height: 44px;
+        padding-right: 0.5rem;
+    }
+    
+    .page-title-content h1 {
+        font-size: 1.125rem;
+        margin-bottom: 0.125rem;
+        line-height: 1.3;
+    }
+    
+    .page-description {
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+    
+    .page-actions {
+        width: auto;
+        justify-content: flex-end;
+        gap: 0.5rem;
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+    
+    .page-actions .btn {
+        padding: 0 !important;
+        min-width: 36px !important;
+        width: 36px !important;
+        height: 36px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        overflow: hidden;
+        gap: 0 !important;
+        position: relative !important;
+    }
+    
+    .page-actions .btn .btn-text {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        overflow: hidden !important;
+        visibility: hidden !important;
+    }
+    
+    .page-actions .btn i,
+    .page-actions .btn .btn-icon,
+    .page-actions .btn [class^="fas"],
+    .page-actions .btn [class*=" fa-"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: auto !important;
+        height: auto !important;
+        line-height: 1 !important;
+        font-size: 1rem !important;
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+    
+    /* Приховуємо будь-який текстовий контент */
+    .page-actions .btn > *:not(i):not(.btn-icon):not([class^="fas"]):not([class*=" fa-"]) {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   КАРТОЧКИ
+   ======================================== */
+.card {
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.card.border-left-primary::before,
+.card.border-left-success::before,
+.card.border-left-info::before,
+.card.border-left-warning::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.card.border-left-primary::before {
+    background: var(--primary-color);
+}
+
+.card.border-left-success::before {
+    background: #1cc88a;
+}
+
+.card.border-left-info::before {
+    background: #36b9cc;
+}
+
+.card.border-left-warning::before {
+    background: #f6c23e;
+}
+
+.card .card-body {
+    padding: 20px;
+    position: relative;
+}
+
+.card .h4 {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+    color: var(--text-primary);
+}
+
+.text-gray-800 {
+    color: #2d3748;
+}
+
+.text-success {
+    color: #1cc88a !important;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.font-weight-bold {
+    font-weight: 600;
+}
+
+.opacity-25 {
+    opacity: 0.25;
+}
+
+/* ========================================
+   КОНТЕНТНЫЕ СЕКЦИИ
+   ======================================== */
+.content-section {
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.content-section-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.content-section-body {
+    padding: 20px;
+}
+
+.quick-actions,
+.system-info {
+    background: white;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.action-list,
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.action-list li,
+.info-list li {
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.action-list li:last-child,
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+.action-list a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.action-list a:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+.action-list a i {
+    margin-right: 12px;
+    width: 16px;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.info-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 13px;
+}
+
+.info-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.info-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ========================================
+   ТАБЛИЦЫ
+   ======================================== */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+}
+
+.admin-table th {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f1f3f4;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.status-badge.pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* ========================================
+   КНОПКИ
+   ======================================== */
+.btn-primary {
+    background: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 3px;
+    font-weight: 400;
+    padding: 0 12px;
+    height: 32px;
+    line-height: 30px;
+    font-size: 13px;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    border-color: var(--primary-dark);
+    color: white;
+    box-shadow: none;
+}
+
+.d-flex.justify-content-between .btn {
+    background: #f7f7f7 !important;
+    border: 1px solid #ccc !important;
+    color: #555 !important;
+    padding: 6px 10px !important;
+    border-radius: 3px !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+}
+
+.d-flex.justify-content-between .btn:hover {
+    background: #fafafa !important;
+    border-color: #999 !important;
+    color: var(--text-primary) !important;
+}
+
+.d-flex.justify-content-between .btn-primary {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: none !important;
+}
+
+.d-flex.justify-content-between .btn-primary:hover {
+    background: var(--primary-dark) !important;
+    color: white !important;
+    border-color: var(--primary-dark) !important;
+}
+
+/* ========================================
+   МОБИЛЬНОЕ МЕНЮ
+   ======================================== */
+.mobile-menu-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: rgba(160,165,170,0.15);
+    border-radius: 8px;
+    color: #a0a5aa;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: none;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: none;
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
+}
+
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.mobile-sidebar-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-sidebar {
+    position: fixed;
+    top: 0;
+    left: -280px;
+    width: 280px;
+    max-width: 280px;
+    height: 100vh;
+    background: #23282d;
+    z-index: 1050;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: left 0.3s ease;
+    padding-top: 0;
+    box-sizing: border-box;
+}
+
+.mobile-sidebar.show {
+    left: 0;
+}
+
+.mobile-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #2c3338 0%, #23282d 100%);
+    border-bottom: 1px solid #32373c;
+    min-height: 64px;
+}
+
+.mobile-sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mobile-logo-img {
+    height: 40px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    display: block;
+    border-radius: 10px;
+}
+
+.mobile-sidebar-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: rgba(160,165,170,0.15);
+    border-radius: 8px;
+    color: #a0a5aa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-sidebar-close:hover {
+    background: rgba(220,53,69,0.2);
+    color: #dc3545;
+    transform: scale(1.05);
+}
+
+.mobile-sidebar .wp-menu {
+    padding: 0;
+    margin: 0;
+}
+
+.mobile-sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    color: white;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 18px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+    transition: all 0.2s ease;
+    border-bottom: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    font-weight: 400;
+}
+
+.mobile-sidebar .nav-link:hover {
+    color: white !important;
+    background-color: #32373c !important;
+}
+
+.mobile-sidebar .nav-link.active {
+    color: white !important;
+    background-color: #0073aa !important;
+}
+
+.mobile-sidebar .nav-link.active i {
+    color: white !important;
+}
+
+.mobile-sidebar .nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #00a0d2;
+}
+
+.mobile-sidebar .nav-link i {
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+    text-align: center;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.mobile-sidebar .has-submenu {
+    border-bottom: none;
+}
+
+.mobile-sidebar .submenu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    color: #b4b9be;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 18px;
+    margin: 0;
+    border-radius: 0;
+    position: relative;
+    transition: all 0.2s ease;
+    border-bottom: none;
+    box-sizing: border-box;
+}
+
+.mobile-sidebar .submenu-toggle:hover {
+    color: #00a0d2 !important;
+    background-color: #32373c !important;
+}
+
+.mobile-sidebar .submenu-toggle.active {
+    color: white !important;
+    background-color: #0073aa !important;
+}
+
+.mobile-sidebar .submenu-toggle.active i {
+    color: white !important;
+}
+
+.mobile-sidebar .submenu-toggle.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #00a0d2;
+}
+
+.mobile-sidebar .submenu-arrow {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.mobile-sidebar .has-submenu.open .submenu-arrow {
+    transform: rotate(180deg);
+}
+
+.mobile-sidebar .submenu {
+    max-height: 0;
+    overflow: hidden;
+    background: #1a1d21;
+    transition: max-height 0.3s ease;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    border-top: 1px solid #32373c;
+}
+
+.mobile-sidebar .has-submenu.open .submenu {
+    border-top: 1px solid #32373c;
+}
+
+.mobile-sidebar .has-submenu.open .submenu {
+    max-height: 500px;
+}
+
+.mobile-sidebar .submenu li {
+    margin: 0;
+    border-bottom: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.mobile-sidebar .submenu-link {
+    display: flex;
+    align-items: center;
+    padding: 7px 15px 7px 12px;
+    color: #b4b9be;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 18px;
+    position: relative;
+    border-bottom: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+.mobile-sidebar .submenu-link i {
+    width: 20px;
+    height: 20px;
+    font-size: 14px;
+    text-align: center;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.9;
+    color: white;
+}
+
+.mobile-sidebar .submenu-link:last-child {
+    border-bottom: none;
+}
+
+.mobile-sidebar .submenu-link {
+    color: white;
+    font-weight: 400;
+}
+
+.mobile-sidebar .submenu-link:hover {
+    color: white;
+    background-color: #32373c;
+}
+
+.mobile-sidebar .submenu-link:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: #00a0d2;
+}
+
+.mobile-sidebar .submenu-link.active {
+    color: white;
+    background-color: #32373c;
+    font-weight: 400;
+}
+
+.mobile-sidebar .submenu-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: white;
+}
+
+.mobile-sidebar .submenu-link.active::after {
+    content: '\f054';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: white;
+    font-size: 10px;
+}
+
+.mobile-sidebar .submenu-link.active i {
+    color: white;
+}
+
+/* Пустое состояние для мобильного меню */
+.mobile-sidebar .sidebar-empty-state {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.mobile-sidebar .sidebar-empty-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 16px;
+    background: #32373c;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 1.5rem;
+}
+
+.mobile-sidebar .sidebar-empty-text {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #a0a5aa;
+    margin: 0 0 8px 0;
+}
+
+.mobile-sidebar .sidebar-empty-hint {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin: 0;
+    line-height: 1.5;
+}
+
+@media (max-width: 767.98px) {
+    .sidebar {
+        display: none !important;
+    }
+    
+    main.col-md-9.ms-sm-auto.col-lg-10 {
+        margin-top: var(--header-height-mobile) !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+    
+    .admin-content-container {
+        padding: 20px 16px;
+        min-height: calc(100vh - var(--header-height-mobile));
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+    
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+    
+    .mobile-sidebar {
+        padding-top: 0;
+    }
+    
+    /* Убеждаемся, что dropdown меню отображаются на мобильных */
+    .header-right-actions .dropdown-menu.show,
+    .header-right-actions .dropdown-menu[data-bs-popper],
+    .header-right-actions .dropdown-menu[aria-labelledby] {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1060 !important;
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 8px) !important;
+        margin-top: 0 !important;
+        transform: none !important;
+    }
+    
+    .header-right-actions .integrations-dropdown-menu.show,
+    .integrations-dropdown-wrapper.show .integrations-dropdown-menu {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        z-index: 1060 !important;
+        position: absolute !important;
+        right: 0 !important;
+        left: auto !important;
+        top: calc(100% + 8px) !important;
+        margin-top: 0 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+    }
+    
+    /* Ограничения для контента на мобильных */
+    body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+    
+    .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+    
+    .container-fluid > .row {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        overflow-x: hidden !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Ограничения для всех элементов внутри контента */
+    .admin-content-container > * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Таблицы на мобильных */
+    .table-responsive {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        width: 100% !important;
+        max-width: 100% !important;
+        table-layout: auto;
+    }
+    
+    /* Карточки на мобильных */
+    .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* Формы на мобильных */
+    form {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-menu-btn {
+        display: none !important;
+    }
+    
+    .mobile-sidebar,
+    .mobile-sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   FOOTER
+   ======================================== */
+.admin-footer {
+    background: transparent;
+    border-top: 1px solid #dee2e6;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    padding: 15px 0;
+    margin-top: 20px;
+}
+
+.admin-footer .container-fluid {
+    padding: 0 20px;
+}
+
+.admin-footer .text-muted {
+    color: #6c757d !important;
+    font-size: 13px;
+    margin-bottom: 0;
+}
+
+.admin-footer .fas {
+    color: var(--primary-color);
+}
+
+.admin-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.admin-footer a:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+@media (max-width: 767.98px) {
+    .admin-footer {
+        margin-left: 0;
+        width: 100%;
+    }
+    
+    .admin-footer .col-md-6:last-child {
+        display: none;
+    }
+}
+
+/* ========================================
+   МОДАЛЬНІ ВІКНА - CORPORATE FLAT
+   ======================================== */
+.modal-content {
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.modal-header {
+    background: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 16px 20px;
+}
+
+.modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.modal-header .btn-close {
+    opacity: 0.6;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 20px;
+    background: #ffffff;
+}
+
+.modal-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+/* Кнопки в модальних вікнах - CORPORATE FLAT */
+.modal-footer .btn {
+    min-width: 100px;
+    height: 36px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-footer .btn-secondary {
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    color: #374151;
+}
+
+.modal-footer .btn-secondary:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.modal-footer .btn-primary {
+    background: #2563eb !important;
+    border: 1px solid #2563eb !important;
+    color: #ffffff !important;
+}
+
+.modal-footer .btn-primary:hover {
+    background: #1d4ed8 !important;
+    border-color: #1d4ed8 !important;
+}
+
+.modal-footer .btn-primary i,
+.modal-footer .btn-primary .fa,
+.modal-footer .btn-primary .fas {
+    color: #ffffff !important;
+}
+
+/* Поля форми в модальних вікнах */
+.modal-body .form-control {
+    height: 40px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    padding: 0 12px;
+}
+
+.modal-body .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.modal-body .form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.modal-body .form-label .text-danger {
+    color: #dc2626;
+}
+
+.modal-body .form-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+/* Прогрес-бар в модальних вікнах - CORPORATE FLAT */
+.modal-body .progress {
+    height: 4px;
+    border-radius: 2px;
+    background: #e5e7eb;
+}
+
+.modal-body .progress-bar {
+    background: #2563eb;
+    border-radius: 2px;
+}
+
+/* Алерти в модальних вікнах - CORPORATE FLAT */
+.modal-body .alert {
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
+.modal-body .alert-success {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+}
+
+.modal-body .alert-danger {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #dc2626;
+}
+
+/* Стилізоване поле вибору файлу */
+.modal-body input[type="file"].form-control {
+    padding: 0;
+    height: auto;
+    border: 2px dashed var(--border-color);
+    background: var(--surface-1);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-body input[type="file"].form-control:hover {
+    border-color: var(--primary-color);
+    background: var(--color-primary-50);
+}
+
+.modal-body input[type="file"].form-control:focus {
+    border-color: var(--primary-color);
+    background: var(--color-primary-50);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.modal-body input[type="file"].form-control::file-selector-button {
+    padding: 12px 20px;
+    margin-right: 16px;
+    background: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.modal-body input[type="file"].form-control::file-selector-button:hover {
+    background: var(--primary-dark);
+}
+
+/* Текст "Файл не вибрано" */
+.modal-body input[type="file"].form-control {
+    font-size: 14px;
+    color: var(--text-secondary);
+    padding-right: 16px;
+}
+
+/* Загальні стилі для file input */
+input[type="file"].form-control {
+    padding: 0;
+    height: auto;
+    border: 2px dashed var(--border-color);
+    background: var(--surface-1);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="file"].form-control:hover {
+    border-color: var(--primary-color);
+    background: rgba(37, 99, 235, 0.04);
+}
+
+input[type="file"].form-control::file-selector-button {
+    padding: 12px 20px;
+    margin-right: 16px;
+    background: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+input[type="file"].form-control::file-selector-button:hover {
+    background: var(--primary-dark);
+}
+
+/* ========================================
+   DRAG & DROP FILE UPLOAD - CORPORATE FLAT
+   ======================================== */
+.file-dropzone {
+    position: relative;
+    border: 1px dashed #d1d5db;
+    border-radius: 4px;
+    background: #f9fafb;
+    padding: 32px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.file-dropzone:hover {
+    border-color: #2563eb;
+    background: #f3f4f6;
+}
+
+.file-dropzone.dragover {
+    border-color: #2563eb;
+    border-style: solid;
+    background: #eff6ff;
+}
+
+.file-dropzone-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.file-dropzone-content {
+    pointer-events: none;
+}
+
+.file-dropzone-icon {
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 16px;
+    background: #2563eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.file-dropzone-icon i {
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.file-dropzone:hover .file-dropzone-icon {
+    background: #1d4ed8;
+}
+
+.file-dropzone.dragover .file-dropzone-icon {
+    background: #1d4ed8;
+}
+
+.file-dropzone-text {
+    margin-bottom: 8px;
+}
+
+.file-dropzone-primary {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.file-dropzone-secondary {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.file-dropzone-link {
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.file-dropzone:hover .file-dropzone-link {
+    color: #1d4ed8;
+}
+
+.file-dropzone-hint {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 8px;
+}
+
+/* Список вибраних файлів - CORPORATE FLAT */
+.file-dropzone-files {
+    margin-top: 16px;
+    text-align: left;
+}
+
+.file-dropzone-files:empty {
+    display: none;
+}
+
+.file-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.file-item:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.file-item:last-child {
+    margin-bottom: 0;
+}
+
+.file-item-icon {
+    width: 36px;
+    height: 36px;
+    background: #eff6ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.file-item-icon i {
+    font-size: 16px;
+    color: #2563eb;
+}
+
+.file-item-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-item-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-item-size {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.file-item-remove {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+}
+
+.file-item-remove:hover {
+    background: #fef2f2;
+    color: #dc2626;
+}

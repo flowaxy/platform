@@ -1,0 +1,61 @@
+/* ========================================
+   CSS Compatibility Fixes
+   Исправления для совместимости с современными браузерами
+   Переопределяет проблемные свойства из Bootstrap и других библиотек
+   Загружается ПОСЛЕ Bootstrap для переопределения
+   ======================================== */
+
+/* 
+ * ВАЖНО: Эти правила должны загружаться ПОСЛЕ Bootstrap CSS
+ * Правильный порядок CSS свойств для совместимости:
+ * 1. Префиксное свойство (-webkit-)
+ * 2. Стандартное свойство
+ */
+
+/* Исправление для -webkit-text-size-adjust */
+/* Bootstrap использует только -webkit-text-size-adjust */
+/* Используем только префиксное свойство, так как text-size-adjust не поддерживается Firefox и Safari */
+/* Правильный порядок: только префиксное для максимальной совместимости */
+html {
+    -webkit-text-size-adjust: 100%;
+    /* text-size-adjust не поддерживается Firefox и Safari, поэтому не используем */
+}
+
+body {
+    -webkit-text-size-adjust: 100%;
+    /* text-size-adjust не поддерживается Firefox и Safari, поэтому не используем */
+}
+
+/* Исправление для text-align: -webkit-match-parent */
+/* Bootstrap может использовать это свойство, нужно добавить стандартное */
+/* Правильный порядок: сначала префиксное, потом стандартное */
+*[style*="-webkit-match-parent"] {
+    text-align: -webkit-match-parent;
+    text-align: match-parent;
+}
+
+/* Исправление для элементов с text-align: inherit */
+/* Правильный порядок: -webkit-match-parent, match-parent, inherit */
+*[style*="text-align:inherit"] {
+    text-align: -webkit-match-parent;
+    text-align: match-parent;
+    text-align: inherit;
+}
+
+/* Исправление для -webkit-print-color-adjust */
+/* Правильный порядок: префиксное, print-color-adjust, color-adjust */
+@media print {
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}
+
+/* Дополнительные глобальные исправления */
+/* Используем только префиксное свойство для максимальной совместимости */
+* {
+    /* Используем только -webkit-text-size-adjust, так как text-size-adjust не поддерживается Firefox и Safari */
+    -webkit-text-size-adjust: 100%;
+    /* text-size-adjust не поддерживается Firefox и Safari, поэтому не используем */
+}
