@@ -192,8 +192,6 @@ class Cache
 
         // Спочатку перевіряємо кеш у пам'яті
         if (isset($this->memoryCache[$key])) {
-            // Відстежуємо статистику навіть для пам'ятного кешу
-            $this->trackCacheAccess($key);
             return $this->memoryCache[$key];
         }
 
@@ -228,8 +226,10 @@ class Cache
             // Зберігаємо в кеш пам'яті
             $this->memoryCache[$key] = $cached['data'];
 
-            // Відстежуємо статистику використання кешу
-            $this->trackCacheAccess($key);
+            // Хук для плагінів (відстеження статистики і т.д.)
+            if (function_exists('doAction')) {
+                doAction('cache_get', $key);
+            }
 
             return $cached['data'];
         } catch (Exception $e) {
@@ -303,6 +303,11 @@ class Cache
             // Зберігаємо в кеш пам'яті
             $this->memoryCache[$key] = $data;
 
+            // Хук для плагінів
+            if (function_exists('doAction')) {
+                doAction('cache_set', $key, $ttl);
+            }
+
             return true;
         }
 
@@ -328,7 +333,14 @@ class Cache
 
         $filename = $this->getFilename($key);
         if (file_exists($filename)) {
-            return @unlink($filename);
+            $result = @unlink($filename);
+            
+            // Хук для плагінів
+            if ($result && function_exists('doAction')) {
+                doAction('cache_delete', $key);
+            }
+            
+            return $result;
         }
 
         return true;
@@ -697,59 +709,6 @@ class Cache
         $hash = md5($key);
 
         return $this->cacheDir . $hash . self::CACHE_FILE_EXTENSION;
-    }
-
-    /**
-     * Відстеження доступу до кешу для статистики
-     *
-     * @param string $key Ключ кешу
-     * @return void
-     */
-    private function trackCacheAccess(string $key): void
-    {
-        try {
-            // Перевіряємо, чи існує клас CacheStatsTracker
-            // (він може бути недоступний, якщо плагін cache-view не встановлений)
-            if (!class_exists('CacheStatsTracker')) {
-                // Шукаємо файл в плагіні cache-view (спробуємо різні шляхи)
-                $possiblePaths = [
-                    dirname(__DIR__, 3) . '/plugins/cache-view/src/Services/CacheStatsTracker.php',
-                    dirname(__DIR__, 2) . '/plugins/cache-view/src/Services/CacheStatsTracker.php',
-                ];
-                
-                // Також спробуємо через ROOT_DIR, якщо він визначений
-                if (defined('ROOT_DIR')) {
-                    $possiblePaths[] = ROOT_DIR . '/plugins/cache-view/src/Services/CacheStatsTracker.php';
-                }
-
-                $found = false;
-                foreach ($possiblePaths as $pluginPath) {
-                    if (file_exists($pluginPath)) {
-                        require_once $pluginPath;
-                        $found = true;
-                        break;
-                    }
-                }
-
-                if (!$found) {
-                    return; // Клас недоступний, виходимо без помилки
-                }
-            }
-
-            if (class_exists('CacheStatsTracker')) {
-                $tracker = new CacheStatsTracker($this->cacheDir);
-                // Відстежуємо за MD5 хешем, оскільки в UI ключі відображаються як хеші
-                // Це дозволяє коректно відображати статистику для файлів кешу
-                $hashKey = md5($key);
-                $tracker->trackAccess($hashKey);
-            }
-        } catch (Exception $e) {
-            // Тихо ігноруємо помилки відстеження статистики, щоб не порушити роботу кешу
-            logger()->logWarning('Cache: помилка відстеження статистики для ключа "' . $key . '": ' . $e->getMessage(), ['key' => $key, 'exception' => $e]);
-        } catch (Throwable $e) {
-            // Ловимо також всі інші винятки
-            logger()->logWarning('Cache: помилка відстеження статистики для ключа "' . $key . '": ' . $e->getMessage(), ['key' => $key, 'exception' => $e]);
-        }
     }
 
     /**
