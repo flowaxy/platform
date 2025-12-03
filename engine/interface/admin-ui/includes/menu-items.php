@@ -248,7 +248,8 @@ function renderMenuItem($item, $currentPage, $isMobile = false)
                 }
                 $subActiveClass = $subActive ? 'active' : '';
                 $subIcon = isset($subItem['icon']) ? '<i class="' . $subItem['icon'] . '"></i>' : '';
-                echo '<li><a href="' . $subItem['href'] . '" class="submenu-link ' . $subActiveClass . '">' . $subIcon . '<span class="menu-text">' . htmlspecialchars($subItem['text'] ?? $subItem['title'] ?? '') . '</span></a></li>';
+                $subBadge = isset($subItem['badge']) ? ' <span class="badge bg-warning text-dark ms-auto" style="font-size:9px;padding:2px 5px;">' . htmlspecialchars($subItem['badge']) . '</span>' : '';
+                echo '<li><a href="' . $subItem['href'] . '" class="submenu-link ' . $subActiveClass . '" style="display:flex;align-items:center;gap:8px;">' . $subIcon . '<span class="menu-text">' . htmlspecialchars($subItem['text'] ?? $subItem['title'] ?? '') . '</span>' . $subBadge . '</a></li>';
             }
             echo '</ul>';
             echo '</li>';
@@ -289,7 +290,8 @@ function renderMenuItem($item, $currentPage, $isMobile = false)
                 }
                 $subActiveClass = $subActive ? 'active' : '';
                 $subIcon = isset($subItem['icon']) ? '<i class="' . $subItem['icon'] . '"></i>' : '';
-                echo '<li><a href="' . $subItem['href'] . '" class="' . $subActiveClass . '">' . $subIcon . '<span class="menu-text">' . htmlspecialchars($subItem['text'] ?? $subItem['title'] ?? '') . '</span></a></li>';
+                $subBadge2 = isset($subItem['badge']) ? ' <span class="badge bg-warning text-dark ms-auto" style="font-size:9px;padding:2px 5px;">' . htmlspecialchars($subItem['badge']) . '</span>' : '';
+                echo '<li><a href="' . $subItem['href'] . '" class="' . $subActiveClass . '" style="display:flex;align-items:center;gap:8px;">' . $subIcon . '<span class="menu-text">' . htmlspecialchars($subItem['text'] ?? $subItem['title'] ?? '') . '</span>' . $subBadge2 . '</a></li>';
             }
             echo '</ul>';
             echo '</li>';
