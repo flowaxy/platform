@@ -195,4 +195,76 @@ class UrlHelper
 
         return self::admin('assets/' . ltrim($path, '/')) . $version;
     }
+
+    /**
+     * Генерація URL активної теми
+     *
+     * @param string $path Шлях відносно теми (опціонально)
+     * @return string URL теми
+     */
+    public static function theme(string $path = ''): string
+    {
+        $themeSlug = '';
+        
+        // Спробуємо отримати slug активної теми
+        if (function_exists('themeManager')) {
+            $theme = themeManager()->getActiveTheme();
+            if ($theme && isset($theme['slug'])) {
+                $themeSlug = $theme['slug'];
+            }
+        }
+        
+        // Fallback - спробуємо з бази даних
+        if (empty($themeSlug) && function_exists('settingsManager')) {
+            $themeSlug = settingsManager()->get('active_theme', '');
+        }
+        
+        if (empty($themeSlug)) {
+            return '';
+        }
+        
+        $protocol = self::getProtocol();
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        
+        $url = $protocol . $host . '/themes/' . $themeSlug;
+        
+        if (!empty($path)) {
+            $url .= '/' . ltrim($path, '/');
+        }
+        
+        return $url;
+    }
+
+    /**
+     * Генерація URL теми з hash-busting
+     *
+     * @param string $path Шлях до файлу відносно теми
+     * @return string URL з версією
+     */
+    public static function themeAsset(string $path): string
+    {
+        $rootDir = defined('ROOT_DIR') ? ROOT_DIR : dirname(__DIR__, 4);
+        $themeSlug = '';
+        
+        if (function_exists('themeManager')) {
+            $theme = themeManager()->getActiveTheme();
+            if ($theme && isset($theme['slug'])) {
+                $themeSlug = $theme['slug'];
+            }
+        }
+        
+        if (empty($themeSlug)) {
+            return '';
+        }
+        
+        $assetPath = $rootDir . '/themes/' . $themeSlug . '/' . ltrim($path, '/');
+        
+        $version = '';
+        if (file_exists($assetPath)) {
+            $hash = md5_file($assetPath);
+            $version = '?v=' . substr($hash, 0, 8);
+        }
+        
+        return self::theme($path) . $version;
+    }
 }

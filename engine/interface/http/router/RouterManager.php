@@ -432,13 +432,33 @@ class RouterManager
 
         // Основний маршрут для публічної частини
         $this->router->add(['GET', 'POST'], '', function () {
+            // Завантажуємо ThemeManager якщо функція ще не доступна
+            if (!function_exists('themeManager')) {
+                $themeManagerFile = dirname(__DIR__, 3) . '/core/support/managers/ThemeManager.php';
+                if (file_exists($themeManagerFile)) {
+                    require_once $themeManagerFile;
+                }
+            }
+            
             // Перевірка стану системи перед обробкою публічного маршруту
             if (function_exists('checkSystemState')) {
                 checkSystemState();
             }
             
+            // Примусово очищаємо кеш
+            if (function_exists('cache_forget')) {
+                cache_forget('active_theme_slug');
+                cache_forget('active_theme');
+            }
+            
             if (function_exists('themeManager')) {
                 $tm = themeManager();
+                
+                // Примусово перезавантажуємо активну тему
+                if (method_exists($tm, 'reloadActiveTheme')) {
+                    $tm->reloadActiveTheme();
+                }
+                
                 $active = $tm->getActiveTheme();
 
                 // Якщо активна тема не завантажена, спробуємо перезавантажити
@@ -484,6 +504,7 @@ class RouterManager
 
                 // Повторна перевірка після спроби перезавантаження
                 $active = $tm->getActiveTheme();
+                
                 if ($active && isset($active['slug']) && ! empty($active['slug'])) {
                     $path = $tm->getThemePath($active['slug']);
 
