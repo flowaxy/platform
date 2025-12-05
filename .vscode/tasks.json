@@ -1,0 +1,175 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PHP: Validate syntax",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "-l",
+        "${file}"
+      ],
+      "problemMatcher": {
+        "owner": "php",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^Parse error: (.+) in (.+) on line (\\d+)$",
+          "file": 2,
+          "line": 3,
+          "message": 1
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHP: Run script",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "${file}"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHP: Run with built-in server",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "-S",
+        "localhost:8000",
+        "-t",
+        "${workspaceFolder}"
+      ],
+      "problemMatcher": [],
+      "isBackground": true,
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHP CS Fixer: Fix this file",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "${workspaceFolder}/vendor/bin/php-cs-fixer",
+        "fix",
+        "${file}",
+        "--config=${workspaceFolder}/.php-cs-fixer.php"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHP CS Fixer: Fix all files",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "${workspaceFolder}/vendor/bin/php-cs-fixer",
+        "fix",
+        "${workspaceFolder}",
+        "--config=${workspaceFolder}/.php-cs-fixer.php"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHPUnit: Run tests",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "${workspaceFolder}/vendor/bin/phpunit",
+        "--no-coverage"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "PHPUnit: Run current test file",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "${workspaceFolder}/vendor/bin/phpunit",
+        "${file}",
+        "--no-coverage"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "test"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Composer: Install",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "composer",
+        "install"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Composer: Update",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "composer",
+        "update"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Composer: Autoload dump",
+      "type": "shell",
+      "command": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+      "args": [
+        "composer",
+        "dump-autoload",
+        "-o"
+      ],
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}

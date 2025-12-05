@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<ruleset name="Flowaxy CMS">
+    <description>Coding standards for Flowaxy CMS</description>
+
+    <!-- Include PSR-12 standard -->
+    <rule ref="PSR12"/>
+
+    <!-- Exclude directories -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <exclude-pattern>*/storage/cache/*</exclude-pattern>
+    <exclude-pattern>*/storage/logs/*</exclude-pattern>
+    <exclude-pattern>*/storage/temp/*</exclude-pattern>
+    <exclude-pattern>*/themes/*/assets/*</exclude-pattern>
+    <exclude-pattern>*/plugins/*/assets/*</exclude-pattern>
+
+    <!-- File extensions -->
+    <arg name="extensions" value="php"/>
+    <arg name="encoding" value="utf-8"/>
+
+    <!-- Show progress -->
+    <arg value="p"/>
+
+    <!-- Show warnings -->
+    <arg value="w"/>
+
+    <!-- Show colors -->
+    <arg name="colors"/>
+
+    <!-- Ignore warnings -->
+    <arg name="ignore-errors"/>
+    <arg name="ignore-warnings"/>
+</ruleset>

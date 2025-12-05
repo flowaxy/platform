@@ -1,0 +1,300 @@
+{
+  // ============================================================================
+  // PHP Configuration
+  // ============================================================================
+  "php.validate.executablePath": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+  "php.validate.enable": true,
+  "php.validate.run": "onSave",
+  "php.executablePath": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+  "php.suggest.basic": true,
+  // PHP Intelephense (рекомендоване розширення)
+  "intelephense.files.maxSize": 5000000,
+  "intelephense.files.associations": [
+    "*.php",
+    "*.phtml"
+  ],
+  "intelephense.files.exclude": [
+    "**/.git/**",
+    "**/.svn/**",
+    "**/.hg/**",
+    "**/CVS/**",
+    "**/.DS_Store/**",
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**/{Tests,tests}/**",
+    "**/.history/**",
+    "**/vendor/**/vendor/**"
+  ],
+  "intelephense.stubs": [
+    "bcmath",
+    "bz2",
+    "calendar",
+    "Core",
+    "ctype",
+    "curl",
+    "date",
+    "dba",
+    "dom",
+    "enchant",
+    "exif",
+    "FFI",
+    "fileinfo",
+    "filter",
+    "fpm",
+    "ftp",
+    "gd",
+    "gettext",
+    "gmp",
+    "hash",
+    "iconv",
+    "imap",
+    "intl",
+    "json",
+    "ldap",
+    "libxml",
+    "mbstring",
+    "meta",
+    "mysqli",
+    "oci8",
+    "odbc",
+    "openssl",
+    "pcntl",
+    "pcre",
+    "PDO",
+    "pgsql",
+    "Phar",
+    "posix",
+    "pspell",
+    "random",
+    "readline",
+    "Reflection",
+    "session",
+    "shmop",
+    "SimpleXML",
+    "snmp",
+    "soap",
+    "sockets",
+    "sodium",
+    "SPL",
+    "sqlite3",
+    "standard",
+    "superglobals",
+    "sysvmsg",
+    "sysvsem",
+    "sysvshm",
+    "tidy",
+    "tokenizer",
+    "xml",
+    "xmlreader",
+    "xmlrpc",
+    "xmlwriter",
+    "xsl",
+    "Zend OPcache",
+    "zip",
+    "zlib"
+  ],
+  // ============================================================================
+  // File Associations
+  // ============================================================================
+  "files.associations": {
+    "*.php": "php",
+    "*.phtml": "php",
+    "*.inc": "php",
+    "*.module": "php",
+    "*.theme": "php",
+    "*.install": "php",
+    "*.engine": "php"
+  },
+  // ============================================================================
+  // Editor Settings
+  // ============================================================================
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit",
+    "source.organizeImports": "never"
+  },
+  "editor.defaultFormatter": "vscode.php-language-features",
+  "[php]": {
+    "editor.defaultFormatter": "vscode.php-language-features",
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.wordWrap": "off",
+    "editor.rulers": [
+      120
+    ],
+    "editor.suggest.insertMode": "replace",
+    "editor.suggest.snippetsPreventQuickSuggestions": false
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.tabSize": 2
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features",
+    "editor.tabSize": 2
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.tabSize": 2
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.tabSize": 2
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features",
+    "editor.tabSize": 2
+  },
+  "[html]": {
+    "editor.defaultFormatter": "vscode.html-language-features",
+    "editor.tabSize": 2
+  },
+  // ============================================================================
+  // Terminal Configuration
+  // ============================================================================
+  "terminal.integrated.encoding": "utf8",
+  "terminal.integrated.fontFamily": "Consolas, 'Courier New', monospace",
+  "terminal.integrated.defaultProfile.windows": "OSPanel CMD",
+  "terminal.integrated.env.windows": {
+    "PATH": "C:\\OSPanel\\bin;C:\\OSPanel;C:\\OSPanel\\modules\\PHP-8.4;C:\\OSPanel\\modules\\PHP-8.4\\ext;C:\\OSPanel\\modules\\apache\\bin;C:\\OSPanel\\modules\\database\\MySQL-8.0\\bin;${env:PATH}",
+    "OSPANEL_ENV": "flowaxy.local",
+    "OSPANEL_PHP_VERSION": "8.4"
+  },
+  "terminal.integrated.profiles.windows": {
+    "OSPanel CMD": {
+      "path": "C:\\Windows\\System32\\cmd.exe",
+      "args": [
+        "/k",
+        "C:\\Windows\\System32\\chcp.com 65001 >nul 2>nul && set PATH=C:\\OSPanel\\bin;C:\\OSPanel;C:\\OSPanel\\modules\\PHP-8.4;C:\\OSPanel\\modules\\PHP-8.4\\ext;C:\\OSPanel\\modules\\apache\\bin;C:\\OSPanel\\modules\\database\\MySQL-8.0\\bin;%PATH% && echo OSPanel Environment: flowaxy.local ^| PHP-8.4 && echo."
+      ],
+      "env": {
+        "PATH": "C:\\OSPanel\\bin;C:\\OSPanel;C:\\OSPanel\\modules\\PHP-8.4;C:\\OSPanel\\modules\\PHP-8.4\\ext;C:\\OSPanel\\modules\\apache\\bin;C:\\OSPanel\\modules\\database\\MySQL-8.0\\bin;%PATH%",
+        "OSPANEL_ENV": "flowaxy.local",
+        "OSPANEL_PHP_VERSION": "8.4",
+        "LANG": "ru_RU.UTF-8"
+      },
+      "icon": "terminal"
+    },
+    "OSPanel PHP": {
+      "path": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+      "args": [
+        "-NoExit",
+        "-Command",
+        "& { Write-Host 'OSPanel Environment: flowaxy.local | PHP-8.4' -ForegroundColor Cyan; Write-Host '' }"
+      ],
+      "env": {
+        "PATH": "C:\\OSPanel\\modules\\PHP-8.4;C:\\OSPanel\\modules\\PHP-8.4\\ext;C:\\OSPanel\\modules\\apache\\bin;C:\\OSPanel\\modules\\database\\MySQL-8.0\\bin;${env:PATH}",
+        "OSPANEL_ENV": "flowaxy.local",
+        "OSPANEL_PHP_VERSION": "8.4"
+      },
+      "icon": "terminal-powershell"
+    },
+    "PowerShell": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    }
+  },
+  // ============================================================================
+  // Files & Search
+  // ============================================================================
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true,
+    "**/.vscode": false
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/storage/cache/**": true,
+    "**/storage/logs/**": true,
+    "**/storage/temp/**": true,
+    "**/vendor/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/storage/cache": true,
+    "**/storage/logs": true,
+    "**/storage/temp": true,
+    "**/vendor": true,
+    "**/.git": true
+  },
+  // ============================================================================
+  // PHP CS Fixer (якщо встановлено)
+  // ============================================================================
+  "php-cs-fixer.executablePath": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+  "php-cs-fixer.executablePathWindows": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+  "php-cs-fixer.rules": "@PSR12",
+  "php-cs-fixer.allowRisky": false,
+  "php-cs-fixer.pathMode": "override",
+  "php-cs-fixer.exclude": [
+    "vendor",
+    "node_modules",
+    "storage"
+  ],
+  "php-cs-fixer.autoFixOnSave": true,
+  "php-cs-fixer.formatHtml": true,
+  "php-cs-fixer.config": ".php-cs-fixer.php",
+  // ============================================================================
+  // PHPUnit
+  // ============================================================================
+  "phpunit.php": "C:\\OSPanel\\modules\\PHP-8.4\\php.exe",
+  "phpunit.args": [
+    "--no-coverage"
+  ],
+  "phpunit.clearOutputOnRun": true,
+  // ============================================================================
+  // Git
+  // ============================================================================
+  "git.enableSmartCommit": true,
+  "git.confirmSync": false,
+  "git.autofetch": true,
+  "git.ignoreLimitWarning": true,
+  // ============================================================================
+  // Other Settings
+  // ============================================================================
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.encoding": "utf8",
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.enablePreviewFromQuickOpen": false,
+  "workbench.startupEditor": "none",
+  "explorer.confirmDelete": true,
+  "explorer.confirmDragAndDrop": false,
+  "breadcrumbs.enabled": true,
+  "breadcrumbs.filePath": "on",
+  "problems.showCurrentInStatus": true,
+  "editor.minimap.enabled": true,
+  "editor.minimap.maxColumn": 120,
+  "editor.minimap.renderCharacters": false,
+  "editor.suggestSelection": "first",
+  "editor.snippetSuggestions": "top",
+  "editor.acceptSuggestionOnCommitCharacter": true,
+  "editor.acceptSuggestionOnEnter": "on",
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": false,
+    "strings": true
+  },
+  "editor.quickSuggestionsDelay": 10,
+  "editor.wordBasedSuggestions": "matchingDocuments",
+  "editor.parameterHints.enabled": true,
+  "editor.hover.enabled": true,
+  "editor.linkedEditing": true,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": "active",
+  "editor.inlineSuggest.enabled": true,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "diffEditor.renderSideBySide": true,
+  "extensions.ignoreRecommendations": false,
+  "telemetry.telemetryLevel": "off"
+}
