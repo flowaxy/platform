@@ -29,12 +29,19 @@ class LogoutPage
         $userId = $session->get('admin_user_id');
         $username = $session->get('admin_username');
         if ($userId) {
-            logger()->logInfo('Вихід з адмін-панелі', [
-                'user_id' => $userId,
-                'username' => $username,
-            ]);
+            if (function_exists('logInfo')) {
+                logInfo('LogoutPage: User logged out', [
+                    'user_id' => $userId,
+                    'username' => $username,
+                ]);
+            } else {
+                logger()->logInfo('Вихід з адмін-панелі', [
+                    'user_id' => $userId,
+                    'username' => $username,
+                ]);
+            }
         }
-        
+
         // Використовуємо централізований метод logout з SecurityHelper
         SecurityHelper::logout();
 

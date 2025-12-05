@@ -93,12 +93,36 @@ class Directory
      */
     public function create(int $mode = 0755, bool $recursive = true): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('Directory::create: Creating directory', [
+                'path' => $this->path,
+                'mode' => sprintf('%o', $mode),
+                'recursive' => $recursive,
+            ]);
+        }
+
         if ($this->exists()) {
+            if (function_exists('logDebug')) {
+                logDebug('Directory::create: Directory already exists', ['path' => $this->path]);
+            }
             return true; // Директорія вже існує
         }
 
         if (! @mkdir($this->path, $mode, $recursive)) {
+            if (function_exists('logError')) {
+                logError('Directory::create: Failed to create directory', [
+                    'path' => $this->path,
+                    'mode' => sprintf('%o', $mode),
+                ]);
+            }
             throw new \Exception("Не вдалося створити директорію: {$this->path}");
+        }
+
+        if (function_exists('logInfo')) {
+            logInfo('Directory::create: Directory created successfully', [
+                'path' => $this->path,
+                'mode' => sprintf('%o', $mode),
+            ]);
         }
 
         return true;
@@ -113,15 +137,36 @@ class Directory
      */
     public function delete(bool $recursive = true): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('Directory::delete: Deleting directory', [
+                'path' => $this->path,
+                'recursive' => $recursive,
+            ]);
+        }
+
         if (! $this->exists()) {
+            if (function_exists('logDebug')) {
+                logDebug('Directory::delete: Directory does not exist', ['path' => $this->path]);
+            }
             return true; // Директорія вже не існує
         }
 
         if ($recursive) {
-            return $this->removeRecursive($this->path);
+            $result = $this->removeRecursive($this->path);
+            if ($result && function_exists('logInfo')) {
+                logInfo('Directory::delete: Directory deleted recursively', ['path' => $this->path]);
+            }
+            return $result;
         } else {
             if (! @rmdir($this->path)) {
+                if (function_exists('logError')) {
+                    logError('Directory::delete: Failed to delete directory', ['path' => $this->path]);
+                }
                 throw new \Exception("Не вдалося видалити директорію: {$this->path}");
+            }
+
+            if (function_exists('logInfo')) {
+                logInfo('Directory::delete: Directory deleted successfully', ['path' => $this->path]);
             }
 
             return true;

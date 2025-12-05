@@ -60,7 +60,7 @@ class PluginsPage extends AdminPage
             'fas fa-puzzle-piece',
             $headerButtons
         );
-        
+
         // Додаємо хлібні крихти
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
@@ -107,7 +107,11 @@ class PluginsPage extends AdminPage
 
                 return;
             } catch (Exception $e) {
-                logger()->logError('Auto-discover plugins error: ' . $e->getMessage(), ['exception' => $e]);
+                if (function_exists('logError')) {
+                    logError('PluginsPage: Auto-discover plugins error', ['error' => $e->getMessage(), 'exception' => $e]);
+                } else {
+                    logger()->logError('Auto-discover plugins error: ' . $e->getMessage(), ['exception' => $e]);
+                }
                 $this->setMessage('Помилка при виявленні плагінів: ' . $e->getMessage(), 'danger');
             }
         }
@@ -153,14 +157,22 @@ class PluginsPage extends AdminPage
 
                 case 'activate':
                     pluginManager()->activatePlugin($pluginSlug);
-                    logger()->logInfo('Плагін активовано', ['plugin' => $pluginSlug]);
+                    if (function_exists('logInfo')) {
+                        logInfo('PluginsPage: Plugin activated', ['plugin' => $pluginSlug]);
+                    } else {
+                        logger()->logInfo('Плагін активовано', ['plugin' => $pluginSlug]);
+                    }
                     $this->setMessage('Плагін активовано', 'success');
 
                     break;
 
                 case 'deactivate':
                     pluginManager()->deactivatePlugin($pluginSlug);
-                    logger()->logInfo('Плагін деактивовано', ['plugin' => $pluginSlug]);
+                    if (function_exists('logInfo')) {
+                        logInfo('PluginsPage: Plugin deactivated', ['plugin' => $pluginSlug]);
+                    } else {
+                        logger()->logInfo('Плагін деактивовано', ['plugin' => $pluginSlug]);
+                    }
                     $this->setMessage('Плагін деактивовано', 'success');
 
                     break;
@@ -181,10 +193,18 @@ class PluginsPage extends AdminPage
                     }
 
                     if (pluginManager()->uninstallPlugin($pluginSlug)) {
-                        logger()->logInfo('Плагін видалено', ['plugin' => $pluginSlug]);
+                        if (function_exists('logInfo')) {
+                            logInfo('PluginsPage: Plugin uninstalled', ['plugin' => $pluginSlug]);
+                        } else {
+                            logger()->logInfo('Плагін видалено', ['plugin' => $pluginSlug]);
+                        }
                         $this->setMessage('Плагін видалено', 'success');
                     } else {
-                        logger()->logWarning('Помилка видалення плагіна', ['plugin' => $pluginSlug]);
+                        if (function_exists('logWarning')) {
+                            logWarning('PluginsPage: Plugin uninstall error', ['plugin' => $pluginSlug]);
+                        } else {
+                            logger()->logWarning('Помилка видалення плагіна', ['plugin' => $pluginSlug]);
+                        }
                         $this->setMessage('Помилка видалення плагіна. Переконайтеся, що плагін деактивований', 'danger');
                     }
 
@@ -192,7 +212,11 @@ class PluginsPage extends AdminPage
             }
         } catch (Exception $e) {
             $this->setMessage('Помилка: ' . $e->getMessage(), 'danger');
-            logger()->logError('Plugin action error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('PluginsPage: Plugin action error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Plugin action error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
 
         // Редирект після обробки дії для запобігання повторного виконання
@@ -218,7 +242,11 @@ class PluginsPage extends AdminPage
             $dbPlugins = $stmt->fetchAll(PDO::FETCH_ASSOC);
             $dbPlugins = array_column($dbPlugins, null, 'slug');
         } catch (Exception $e) {
-            logger()->logError('DB plugins error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('PluginsPage: DB plugins error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('DB plugins error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
 
         // Скануємо папку plugins
@@ -232,7 +260,11 @@ class PluginsPage extends AdminPage
                 if (file_exists($configFile) && is_readable($configFile)) {
                     $configContent = @file_get_contents($configFile);
                     if ($configContent === false) {
-                        logger()->logWarning("Cannot read plugin.json for plugin: {$slug}");
+                        if (function_exists('logWarning')) {
+                            logWarning("PluginsPage: Cannot read plugin.json", ['plugin' => $slug]);
+                        } else {
+                            logger()->logWarning("Cannot read plugin.json for plugin: {$slug}");
+                        }
                         continue;
                     }
 
@@ -262,7 +294,11 @@ class PluginsPage extends AdminPage
                             'settings' => $isInstalled && isset($dbPlugins[$pluginSlug]) ? ($dbPlugins[$pluginSlug]['settings'] ?? null) : null,
                         ];
                     } else {
-                        logger()->logWarning("Invalid JSON in plugin.json for plugin: {$slug}");
+                        if (function_exists('logWarning')) {
+                            logWarning("PluginsPage: Invalid JSON in plugin.json", ['plugin' => $slug]);
+                        } else {
+                            logger()->logWarning("Invalid JSON in plugin.json for plugin: {$slug}");
+                        }
                     }
                 }
             }
@@ -367,7 +403,7 @@ class PluginsPage extends AdminPage
 
         return $pluginsDir;
     }
-    
+
     /**
      * Рекурсивне видалення директорії
      */
@@ -376,13 +412,13 @@ class PluginsPage extends AdminPage
         if (!is_dir($dir)) {
             return false;
         }
-        
+
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             $path = $dir . DIRECTORY_SEPARATOR . $file;
             is_dir($path) ? $this->deleteDirectory($path) : @unlink($path);
         }
-        
+
         return @rmdir($dir);
     }
 
@@ -436,10 +472,10 @@ class PluginsPage extends AdminPage
         if (!is_array($files['name'])) {
             return [$files];
         }
-        
+
         $normalized = [];
         $count = count($files['name']);
-        
+
         for ($i = 0; $i < $count; $i++) {
             if ($files['error'][$i] === UPLOAD_ERR_OK) {
                 $normalized[] = [
@@ -451,10 +487,10 @@ class PluginsPage extends AdminPage
                 ];
             }
         }
-        
+
         return $normalized;
     }
-    
+
     /**
      * Очистка slug від GitHub-суфіксів
      * logs-view-main -> logs-view
@@ -465,13 +501,13 @@ class PluginsPage extends AdminPage
     {
         // Суфікси GitHub гілок
         $suffixes = ['-main', '-master', '-dev', '-develop', '-release', '-stable', '-latest', '-beta', '-alpha'];
-        
+
         foreach ($suffixes as $suffix) {
             if (str_ends_with(strtolower($slug), $suffix)) {
                 return substr($slug, 0, -strlen($suffix));
             }
         }
-        
+
         return $slug;
     }
 
@@ -492,18 +528,18 @@ class PluginsPage extends AdminPage
 
         // Нормалізуємо масив файлів для підтримки multiple
         $normalizedFiles = $this->normalizeFilesArray($files['plugin_file']);
-        
+
         if (empty($normalizedFiles)) {
             return ['success' => false, 'error' => 'Файл не вибрано', 'reload' => false];
         }
-        
+
         $successCount = 0;
         $errors = [];
         $installedPlugins = [];
-        
+
         // Параметр перезапису
         $overwrite = !empty($data['overwrite']);
-        
+
         // Обробляємо кожен файл окремо
         foreach ($normalizedFiles as $file) {
             $result = $this->processPluginUpload($file, $overwrite);
@@ -514,29 +550,40 @@ class PluginsPage extends AdminPage
                 $errors[] = $file['name'] . ': ' . $result['error'];
             }
         }
-        
+
         // Формуємо відповідь
         if ($successCount === 0) {
-            logger()->logWarning('Помилка встановлення плагінів', ['errors' => $errors]);
+            if (function_exists('logWarning')) {
+                logWarning('PluginsPage: Plugin installation errors', ['errors' => $errors]);
+            } else {
+                logger()->logWarning('Помилка встановлення плагінів', ['errors' => $errors]);
+            }
             return ['success' => false, 'error' => implode("\n", $errors), 'reload' => false];
         }
-        
-        logger()->logInfo('Плагіни встановлено', [
-            'count' => $successCount,
-            'plugins' => $installedPlugins,
-        ]);
-        
+
+        if (function_exists('logInfo')) {
+            logInfo('PluginsPage: Plugins installed', [
+                'count' => $successCount,
+                'plugins' => $installedPlugins,
+            ]);
+        } else {
+            logger()->logInfo('Плагіни встановлено', [
+                'count' => $successCount,
+                'plugins' => $installedPlugins,
+            ]);
+        }
+
         $message = "Встановлено плагінів: {$successCount}";
         if (!empty($errors)) {
             $message .= "\nПомилки:\n" . implode("\n", $errors);
         }
-        
+
         return ['success' => true, 'message' => $message, 'reload' => true];
     }
-    
+
     /**
      * Обробка одного файлу плагіна
-     * 
+     *
      * @param array $file Файл
      * @param bool $overwrite Перезаписати існуючий плагін
      */
@@ -725,7 +772,11 @@ class PluginsPage extends AdminPage
                     $zip->extractFile($entryName, $targetPath);
                     $extracted++;
                 } catch (Exception $e) {
-                    logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e, 'entry' => $entryName]);
+                    if (function_exists('logError')) {
+                        logError("PluginsPage: Failed to extract file", ['entry' => $entryName, 'error' => $e->getMessage(), 'exception' => $e]);
+                    } else {
+                        logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e, 'entry' => $entryName]);
+                    }
                 }
             }
 
@@ -745,7 +796,11 @@ class PluginsPage extends AdminPage
                     'plugin' => $pluginSlug,
                 ];
             } catch (Exception $e) {
-                logger()->logError('Plugin install error: ' . $e->getMessage(), ['exception' => $e, 'plugin_slug' => $pluginSlug]);
+                if (function_exists('logError')) {
+                    logError('PluginsPage: Plugin install error', ['plugin_slug' => $pluginSlug, 'error' => $e->getMessage(), 'exception' => $e]);
+                } else {
+                    logger()->logError('Plugin install error: ' . $e->getMessage(), ['exception' => $e, 'plugin_slug' => $pluginSlug]);
+                }
 
                 return [
                     'success' => true,
@@ -765,7 +820,11 @@ class PluginsPage extends AdminPage
                 @unlink($uploadedFile);
             }
 
-            logger()->logError('Plugin upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            if (function_exists('logError')) {
+                logError('PluginsPage: Plugin upload error', ['error' => $e->getMessage(), 'exception' => $e, 'trace' => $e->getTraceAsString()]);
+            } else {
+                logger()->logError('Plugin upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            }
 
             return [
                 'success' => false,
@@ -1061,7 +1120,11 @@ class PluginsPage extends AdminPage
                 // Створюємо папки якщо потрібно
                 if (! is_dir($targetDirPath)) {
                     if (! @mkdir($targetDirPath, 0755, true)) {
-                        logger()->logError("Failed to create directory: {$targetDirPath}", ['path' => $targetDirPath]);
+                        if (function_exists('logError')) {
+                            logError("PluginsPage: Failed to create directory", ['path' => $targetDirPath]);
+                        } else {
+                            logger()->logError("Failed to create directory: {$targetDirPath}", ['path' => $targetDirPath]);
+                        }
                         continue;
                     }
                 }
@@ -1071,7 +1134,11 @@ class PluginsPage extends AdminPage
                     $zip->extractFile($entryName, $targetPath);
                     $extracted++;
                 } catch (Exception $e) {
-                    logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e, 'entry' => $entryName]);
+                    if (function_exists('logError')) {
+                        logError("PluginsPage: Failed to extract file", ['entry' => $entryName, 'error' => $e->getMessage(), 'exception' => $e]);
+                    } else {
+                        logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e, 'entry' => $entryName]);
+                    }
                     // Продовжуємо з наступним файлом
                 }
             }
@@ -1114,7 +1181,11 @@ class PluginsPage extends AdminPage
                 @unlink($uploadedFile);
             }
 
-            logger()->logError('Plugin upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            if (function_exists('logError')) {
+                logError('PluginsPage: Plugin upload error', ['error' => $e->getMessage(), 'exception' => $e, 'trace' => $e->getTraceAsString()]);
+            } else {
+                logger()->logError('Plugin upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            }
             $this->sendJsonResponse(['success' => false, 'error' => 'Помилка: ' . $e->getMessage()], 500);
         }
     }

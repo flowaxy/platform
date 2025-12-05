@@ -36,7 +36,7 @@ class RolesPage extends AdminPage
             'Управління ролями та правами доступу',
             'fas fa-user-shield'
         );
-        
+
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
             ['title' => 'Налаштування', 'url' => UrlHelper::admin('settings')],
@@ -101,7 +101,7 @@ class RolesPage extends AdminPage
                 if (!empty($row['permissions'])) {
                     $permissionIds = json_decode($row['permissions'], true) ?: [];
                 }
-                
+
                 // Конвертуємо ID прав в slug
                 if (!empty($permissionIds)) {
                     $placeholders = implode(',', array_fill(0, count($permissionIds), '?'));
@@ -116,7 +116,11 @@ class RolesPage extends AdminPage
 
             return $rows;
         } catch (Exception $e) {
-            logger()->logError('RolesPage getRoles error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('RolesPage: getRoles error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('RolesPage getRoles error: ' . $e->getMessage(), ['exception' => $e]);
+            }
             return [];
         }
     }
@@ -138,7 +142,11 @@ class RolesPage extends AdminPage
             ');
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Exception $e) {
-            logger()->logError('RolesPage getAllPermissions error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('RolesPage: getAllPermissions error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('RolesPage getAllPermissions error: ' . $e->getMessage(), ['exception' => $e]);
+            }
             return [];
         }
     }
@@ -215,7 +223,11 @@ class RolesPage extends AdminPage
             }
 
             $this->db->commit();
-            logger()->logInfo('Роль створено', ['role_id' => $roleId, 'role_name' => $name]);
+            if (function_exists('logInfo')) {
+                logInfo('RolesPage: Role created', ['role_id' => $roleId, 'role_name' => $name]);
+            } else {
+                logger()->logInfo('Роль створено', ['role_id' => $roleId, 'role_name' => $name]);
+            }
             $this->setMessage('Роль успішно створена', 'success');
             $this->redirect('roles');
         } catch (Exception $e) {
@@ -223,7 +235,11 @@ class RolesPage extends AdminPage
                 $this->db->rollBack();
             }
             $this->setMessage('Помилка при створенні ролі: ' . $e->getMessage(), 'danger');
-            logger()->logError('RolesPage createRole error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('RolesPage: createRole error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('RolesPage createRole error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -283,7 +299,7 @@ class RolesPage extends AdminPage
 
             // Оновлюємо роль
             $stmt = $this->db->prepare('
-                UPDATE roles 
+                UPDATE roles
                 SET name = ?, description = ?
                 WHERE id = ?
             ');
@@ -305,7 +321,11 @@ class RolesPage extends AdminPage
             }
 
             $this->db->commit();
-            logger()->logInfo('Роль оновлено', ['role_id' => $roleId, 'role_name' => $name]);
+            if (function_exists('logInfo')) {
+                logInfo('RolesPage: Role updated', ['role_id' => $roleId, 'role_name' => $name]);
+            } else {
+                logger()->logInfo('Роль оновлено', ['role_id' => $roleId, 'role_name' => $name]);
+            }
             $this->setMessage('Роль успішно оновлена', 'success');
             $this->redirect('roles');
         } catch (Exception $e) {
@@ -313,7 +333,11 @@ class RolesPage extends AdminPage
                 $this->db->rollBack();
             }
             $this->setMessage('Помилка при оновленні ролі: ' . $e->getMessage(), 'danger');
-            logger()->logError('RolesPage updateRole error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('RolesPage: updateRole error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('RolesPage updateRole error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -377,7 +401,11 @@ class RolesPage extends AdminPage
             $stmt->execute([$roleId]);
 
             $this->db->commit();
-            logger()->logInfo('Роль видалено', ['role_id' => $roleId]);
+            if (function_exists('logInfo')) {
+                logInfo('RolesPage: Role deleted', ['role_id' => $roleId]);
+            } else {
+                logger()->logInfo('Роль видалено', ['role_id' => $roleId]);
+            }
             $this->setMessage('Роль успішно видалена', 'success');
             $this->redirect('roles');
         } catch (Exception $e) {
@@ -385,7 +413,11 @@ class RolesPage extends AdminPage
                 $this->db->rollBack();
             }
             $this->setMessage('Помилка при видаленні ролі: ' . $e->getMessage(), 'danger');
-            logger()->logError('RolesPage deleteRole error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('RolesPage: deleteRole error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('RolesPage deleteRole error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 

@@ -62,7 +62,7 @@ if (!$isCli && !$isInstaller && !$isInstalled) {
             require_once $errorHandlerFile;
         }
     }
-    
+
     // Викликаємо функцію, яка покаже сторінку з кнопкою установки
     // Функція сама викликає exit, тому код після неї не виконається
     if (function_exists('showInstallationRequired')) {
@@ -70,7 +70,7 @@ if (!$isCli && !$isInstaller && !$isInstalled) {
         // Якщо функція не викликала exit (не повинно бути), виходимо тут
         exit;
     }
-    
+
     // Fallback - якщо функція недоступна (має бути рідкістю)
     // Показуємо просту сторінку з повідомленням замість переадресації
     if (!headers_sent()) {
@@ -119,9 +119,9 @@ if (version_compare(PHP_VERSION, '8.4.0', '<')) {
     $minVersion = '8.4.0';
     $currentVersion = PHP_VERSION;
     $errorMessage = "Ця CMS потребує PHP {$minVersion} або вище. Поточна версія: {$currentVersion}";
-    
+
     error_log("Критична помилка версії PHP: {$errorMessage}");
-    
+
     if (!$isCli) {
         // Використовуємо систему обробки помилок
         if (function_exists('showError500Page')) {
@@ -139,7 +139,7 @@ if (version_compare(PHP_VERSION, '8.4.0', '<')) {
                 // Якщо не вдалося показати сторінку помилки, використовуємо fallback
             }
         }
-        
+
         // Fallback - проста помилка, якщо error-handler недоступний
         if (!headers_sent()) {
             http_response_code(500);
@@ -147,7 +147,7 @@ if (version_compare(PHP_VERSION, '8.4.0', '<')) {
         }
         die('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Помилка версії PHP</title></head><body><h1>Потрібно PHP 8.4+</h1><p>Поточна версія: ' . htmlspecialchars($currentVersion, ENT_QUOTES, 'UTF-8') . '</p></body></html>');
     }
-    
+
     die("{$errorMessage}" . PHP_EOL);
 }
 
@@ -178,7 +178,7 @@ if (! function_exists('detectProtocol')) {
         // Потім перевіряємо налаштування з бази даних (якщо доступна)
         $rootDir = defined('ROOT_DIR') ? ROOT_DIR : dirname(__DIR__, 3);
         $databaseIniFile = $rootDir . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'database.ini';
-        
+
         if (file_exists($databaseIniFile) && is_readable($databaseIniFile) && class_exists('SettingsManager') && function_exists('settingsManager')) {
             try {
                 $settingsManager = settingsManager();
@@ -304,7 +304,7 @@ if (!file_exists($autoloaderFile) || !is_readable($autoloaderFile)) {
 }
 require_once $autoloaderFile;
 
-if (!class_exists('ClassAutoloader')) {
+if (!class_exists('Flowaxy\Core\System\ClassAutoloader') && !class_exists('ClassAutoloader')) {
     throw new RuntimeException('ClassAutoloader class not found after require');
 }
 
@@ -338,51 +338,59 @@ if (!function_exists('buildClassMap')) {
         return array_merge(
             // Core - Base & Support
             [
-                'BaseModule' => "{$C}support/base/BaseModule.php",
-                'BasePlugin' => "{$C}support/base/BasePlugin.php",
-                'UrlHelper' => "{$C}support/helpers/UrlHelper.php",
-                'DatabaseHelper' => "{$C}support/helpers/DatabaseHelper.php",
-                'SecurityHelper' => "{$C}support/helpers/SecurityHelper.php",
-                'Validator' => "{$C}support/validation/Validator.php",
-                'Facade' => "{$C}support/facades/Facade.php",
-                'App' => "{$C}support/facades/App.php",
-                'Hooks' => "{$C}support/facades/Hooks.php",
-                'Plugin' => "{$C}support/facades/Plugin.php",
-                'Theme' => "{$C}support/facades/Theme.php",
-                'Role' => "{$C}support/facades/Role.php",
-                'Log' => "{$C}support/facades/Log.php",
-                'CacheFacade' => "{$C}support/facades/Cache.php",
-                'SessionFacade' => "{$C}support/facades/Session.php",
-                'CookieFacade' => "{$C}support/facades/Cookie.php",
-                'StorageFacade' => "{$C}support/facades/Storage.php",
-                'SettingsFacade' => "{$C}support/facades/Settings.php",
-                'FeatureFlag' => "{$C}support/facades/FeatureFlag.php",
+                'BaseModule' => "Support/Base/BaseModule.php",
+                'BasePlugin' => "Support/Base/BasePlugin.php",
+                'UrlHelper' => "Support/Helpers/UrlHelper.php",
+                'DatabaseHelper' => "Support/Helpers/DatabaseHelper.php",
+                'SecurityHelper' => "Support/Helpers/SecurityHelper.php",
+                'Validator' => "Support/Validation/Validator.php",
+                'Facade' => "Support/Facades/Facade.php",
+                'App' => "Support/Facades/App.php",
+                'Hooks' => "Support/Facades/Hooks.php",
+                'Plugin' => "Support/Facades/Plugin.php",
+                'Theme' => "Support/Facades/Theme.php",
+                'Role' => "Support/Facades/Role.php",
+                'Log' => "Support/Facades/Log.php",
+                'CacheFacade' => "Support/Facades/Cache.php",
+                'SessionFacade' => "Support/Facades/Session.php",
+                'CookieFacade' => "Support/Facades/Cookie.php",
+                'StorageFacade' => "Support/Facades/Storage.php",
+                'SettingsFacade' => "Support/Facades/Settings.php",
+                'FeatureFlag' => "Support/Facades/FeatureFlag.php",
             ],
             // Core - Managers
             [
-                'CookieManager' => "{$C}support/managers/CookieManager.php",
-                'SessionManager' => "{$C}support/managers/SessionManager.php",
-                'StorageManager' => "{$C}support/managers/StorageManager.php",
-                'StorageFactory' => "{$C}support/managers/StorageFactory.php",
-                'ThemeManager' => "{$C}support/managers/ThemeManager.php",
-                'RoleManager' => "{$C}support/managers/RoleManager.php",
-                'SettingsManager' => "{$C}support/managers/SettingsManager.php",
+                'CookieManager' => "Support/Managers/CookieManager.php",
+                'SessionManager' => "Support/Managers/SessionManager.php",
+                'StorageManager' => "Support/Managers/StorageManager.php",
+                'StorageFactory' => "Support/Managers/StorageFactory.php",
+                'ThemeManager' => "Support/Managers/ThemeManager.php",
+                'RoleManager' => "Support/Managers/RoleManager.php",
+                'SettingsManager' => "Support/Managers/SettingsManager.php",
             ],
             // Core - System
             [
                 'ModuleLoader' => "{$C}system/ModuleLoader.php",
                 'HookManager' => "{$C}system/HookManager.php",
+                'Flowaxy\Core\System\HookManager' => "{$C}system/HookManager.php",
                 'Container' => "{$C}system/Container.php",
                 'ServiceProvider' => "{$C}system/ServiceProvider.php",
                 'ServiceConfig' => "{$C}system/ServiceConfig.php",
                 'ModuleManager' => "{$C}system/ModuleManager.php",
                 'MigrationRunner' => "{$C}system/MigrationRunner.php",
-                'HookType' => "{$C}system/hooks/HookType.php",
-                'HookDefinition' => "{$C}system/hooks/HookDefinition.php",
-                'HookListener' => "{$C}system/hooks/HookListener.php",
+                'HookType' => "Hooks/HookType.php",
+                'Flowaxy\Core\System\Hooks\HookType' => "Hooks/HookType.php",
+                'HookDefinition' => "Hooks/HookDefinition.php",
+                'HookListener' => "Hooks/HookListener.php",
+                'Flowaxy\Core\System\Hooks\HookListener' => "Hooks/HookListener.php",
+                'Flowaxy\Core\System\Hooks\HookRegistry' => "Hooks/HookRegistry.php",
+                'Flowaxy\Core\System\Hooks\HookPerformanceMonitor' => "Hooks/HookPerformanceMonitor.php",
+                'Flowaxy\Core\System\Hooks\HookMiddlewareInterface' => "Hooks/HookMiddlewareInterface.php",
+                'Flowaxy\Core\System\Hooks\HookMiddleware' => "Hooks/HookMiddleware.php",
+                'Flowaxy\Core\System\Hooks\HookSource' => "Hooks/HookListener.php", // HookSource знаходиться в тому ж файлі що і HookListener
                 'ComponentRegistry' => "{$C}system/ComponentRegistry.php",
                 'TestService' => "{$C}system/TestService.php",
-                'KernelInterface' => "{$C}contracts/KernelInterface.php",
+                'KernelInterface' => "Contracts/KernelInterface.php",
                 'Kernel' => "{$C}system/Kernel.php",
                 'HttpKernel' => "{$C}system/HttpKernel.php",
                 'CliKernel' => "{$C}system/CliKernel.php",
@@ -410,8 +418,8 @@ if (!function_exists('buildClassMap')) {
             ],
             // Infrastructure - Other
             [
-                'Cache' => "{$I}cache/Cache.php",
-                'Database' => "{$I}persistence/Database.php",
+                'Cache' => "Cache/Cache.php",
+                'Database' => "Database/Database.php",
                 'Logger' => "{$I}logging/Logger.php",
                 'Config' => "{$I}config/Config.php",
                 'SystemConfig' => "{$I}config/SystemConfig.php",
@@ -493,10 +501,14 @@ if (!function_exists('buildClassMap')) {
             ],
             // Engine namespace classes
             [
+                'Flowaxy\\Core\\System\\HttpKernel' => "{$C}system/HttpKernel.php",
+                'Flowaxy\\Core\\System\\Kernel' => "{$C}system/Kernel.php",
+                'Flowaxy\\Core\\System\\CliKernel' => "{$C}system/CliKernel.php",
+                // Fallback для зворотної сумісності
                 'Engine\\Core\\System\\HttpKernel' => "{$C}system/HttpKernel.php",
                 'Engine\\Core\\System\\Kernel' => "{$C}system/Kernel.php",
                 'Engine\\Core\\System\\CliKernel' => "{$C}system/CliKernel.php",
-                'Engine\\Core\\Contracts\\KernelInterface' => "{$C}contracts/KernelInterface.php",
+                'Engine\\Core\\Contracts\\KernelInterface' => "Contracts/KernelInterface.php",
             ]
         );
     }
@@ -504,22 +516,26 @@ if (!function_exists('buildClassMap')) {
 
 // Ініціалізація автозавантажувача класів
 try {
-    $autoloader = new ClassAutoloader($engineDir);
+    // Використовуємо новий namespace з fallback для зворотної сумісності
+    $autoloaderClass = class_exists('Flowaxy\Core\System\ClassAutoloader')
+        ? 'Flowaxy\Core\System\ClassAutoloader'
+        : 'ClassAutoloader';
+    $autoloader = new $autoloaderClass($engineDir);
     $autoloader->enableMissingClassLogging(true);
-    
+
     // Додавання class map
     $classMap = buildClassMap();
     if (is_array($classMap) && !empty($classMap)) {
         $autoloader->addClassMap($classMap);
     }
-    
+
     // Директорії для автозавантаження
     $directoryPaths = [
-        'core/', 'core/bootstrap/', 'core/providers/', 'core/contracts/', 'core/system/', 'core/support/',
-        'core/support/base/', 'core/support/helpers/', 'core/support/managers/', 'core/support/validation/',
+        'core/', 'core/bootstrap/', 'core/providers/', 'Contracts/', 'core/system/', 'Support/',
+        'Support/Base/', 'Support/Helpers/', 'Support/Managers/', 'Support/Validation/',
         'domain/', 'domain/content/', 'domain/shared/',
         'application/', 'application/content/', 'application/security/', 'application/testing/',
-        'infrastructure/', 'infrastructure/persistence/', 'infrastructure/cache/', 'infrastructure/config/',
+        'infrastructure/', 'Database/', 'Cache/', 'infrastructure/config/',
         'infrastructure/logging/', 'infrastructure/filesystem/', 'infrastructure/filesystem/contracts/',
         'infrastructure/security/', 'infrastructure/mail/', 'infrastructure/compilers/',
         'interface/', 'interface/http/', 'interface/http/contracts/', 'interface/http/controllers/',
@@ -527,7 +543,7 @@ try {
         'interface/admin-ui/pages/', 'interface/admin-ui/includes/', 'interface/admin-ui/components/',
         'interface/admin-ui/layouts/', 'interface/admin-ui/assets/', 'interface/ui/', 'interface/templates/',
     ];
-    
+
     // Фільтрація та додавання тільки існуючих директорій
     $classDirectories = [];
     foreach ($directoryPaths as $dir) {
@@ -536,11 +552,11 @@ try {
             $classDirectories[] = $fullPath;
         }
     }
-    
+
     if (!empty($classDirectories)) {
         $autoloader->addDirectories($classDirectories);
     }
-    
+
     $autoloader->register();
     $GLOBALS['engineAutoloader'] = $autoloader;
 } catch (Throwable $e) {
@@ -557,8 +573,25 @@ if (file_exists($loggerFile) && is_readable($loggerFile)) {
     require_once $loggerFile;
 }
 
+// Завантаження Cache рано для доступності функцій cache(), cache_remember() тощо
+if (!function_exists('cache')) {
+    $cacheFile = $engineDir . DIRECTORY_SEPARATOR . 'Cache' . DIRECTORY_SEPARATOR . 'Cache.php';
+    if (file_exists($cacheFile) && is_readable($cacheFile)) {
+        require_once $cacheFile;
+        // Перевірка, чи функції завантажилися
+        if (!function_exists('cache')) {
+            error_log('Warning: Cache.php loaded but cache() function not found');
+        }
+        if (!function_exists('cache_remember')) {
+            error_log('Warning: Cache.php loaded but cache_remember() function not found');
+        }
+    } else {
+        error_log('Warning: Cache.php not found at: ' . $cacheFile);
+    }
+}
+
 // Підключення допоміжних файлів
-$functionsFile = $engineDir . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'support' . DIRECTORY_SEPARATOR . 'functions.php';
+$functionsFile = $engineDir . DIRECTORY_SEPARATOR . 'Support' . DIRECTORY_SEPARATOR . 'functions.php';
 if (file_exists($functionsFile) && is_readable($functionsFile)) {
     require_once $functionsFile;
 }
@@ -582,7 +615,7 @@ $timezone = $defaultTimezone;
 if ($isInstalled && function_exists('getTimezoneFromDatabase')) {
     try {
         $tz = getTimezoneFromDatabase();
-        
+
         if (is_string($tz) && !empty($tz)) {
             // Автоматичне оновлення старого часового поясу
             if ($tz === 'Europe/Kiev') {
@@ -662,7 +695,7 @@ if ($isInstalled && class_exists('Logger') && method_exists('Logger', 'getInstan
                     // Ігноруємо помилки логування
                 }
             }
-            
+
             if (function_exists('showError500Page')) {
                 try {
                     showError500Page($e);
@@ -702,7 +735,7 @@ if ($isInstalled && class_exists('Logger') && method_exists('Logger', 'getInstan
                         // Ігноруємо помилки логування
                     }
                 }
-                
+
                 if (function_exists('showError500Page')) {
                     try {
                         showError500Page(null, [
@@ -734,7 +767,7 @@ if ($isInstalled && class_exists('SettingsManager') && function_exists('settings
         $settingsManager = settingsManager();
         if ($settingsManager !== null && method_exists($settingsManager, 'get')) {
             $protocolSetting = $settingsManager->get('site_protocol', 'auto');
-            
+
             if (is_string($protocolSetting)) {
                 if ($protocolSetting === 'https') {
                     $protocolFromSettings = 'https://';
@@ -758,7 +791,7 @@ if ($protocolFromSettings === null) {
                  (isset($_SERVER['REQUEST_SCHEME']) && is_string($_SERVER['REQUEST_SCHEME']) && $_SERVER['REQUEST_SCHEME'] === 'https') ||
                  (isset($_SERVER['SERVER_PORT']) && (int)$_SERVER['SERVER_PORT'] === 443) ||
                  (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && is_string($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
-    
+
     if ($realHttps) {
         $isSecure = true;
     } elseif (class_exists('UrlHelper') && method_exists('UrlHelper', 'isHttps')) {
@@ -787,12 +820,25 @@ if ($protocolFromSettings === null) {
 // 11. ІНІЦІАЛІЗАЦІЯ КОНТЕЙНЕРА ЗАЛЕЖНОСТЕЙ
 // ============================================================================
 
-if (!class_exists('Container')) {
-    throw new RuntimeException('Container class not found');
+// Завантажуємо Container клас
+$containerFile = $engineDir . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'system' . DIRECTORY_SEPARATOR . 'Container.php';
+if (file_exists($containerFile) && is_readable($containerFile)) {
+    require_once $containerFile;
+}
+
+// Використовуємо повний namespace для Container
+$containerClass = 'Flowaxy\Core\System\Container';
+if (!class_exists($containerClass)) {
+    // Fallback для зворотної сумісності
+    if (!class_exists('Container')) {
+        throw new RuntimeException('Container class not found');
+    }
+    $container = new Container();
+} else {
+    $container = new $containerClass();
 }
 
 try {
-    $container = new Container();
     $GLOBALS['engineContainer'] = $container;
 } catch (Throwable $e) {
     throw new RuntimeException('Failed to create Container: ' . $e->getMessage(), 0, $e);
@@ -823,7 +869,7 @@ foreach ($serviceProviders as $providerClass) {
     if (!class_exists($providerClass)) {
         continue;
     }
-    
+
     try {
         $provider = new $providerClass();
         if ($provider instanceof ServiceProvider && method_exists($provider, 'register')) {
@@ -880,13 +926,7 @@ if (isset($autoloader) && $container->has(LoggerInterface::class)) {
     }
 }
 
-// Завантаження Cache, якщо не завантажений через autoloader
-if (!class_exists('Cache')) {
-    $cacheFile = $engineDir . DIRECTORY_SEPARATOR . 'infrastructure' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'Cache.php';
-    if (file_exists($cacheFile) && is_readable($cacheFile)) {
-        require_once $cacheFile;
-    }
-}
+// Завантаження Cache вже виконано вище перед functions.php
 
 // ============================================================================
 // 12. ІНІЦІАЛІЗАЦІЯ СЕСІЇ
@@ -959,7 +999,7 @@ if ($isInstalled && class_exists('DatabaseHelper') && method_exists('DatabaseHel
             }
         }
     }
-    
+
     // Ініціалізація системи ролей
     $rolesInitFile = $engineDir . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'roles-init.php';
     if (file_exists($rolesInitFile) && is_readable($rolesInitFile)) {
@@ -1002,7 +1042,12 @@ if ($isCli) {
     }
     require_once $cliKernelFile;
 
-    $cliKernelClass = 'Engine\Core\System\CliKernel';
+    // Використовуємо новий namespace
+    $cliKernelClass = 'Flowaxy\Core\System\CliKernel';
+    if (!class_exists($cliKernelClass)) {
+        // Fallback для зворотної сумісності
+        $cliKernelClass = 'Engine\Core\System\CliKernel';
+    }
     if (!class_exists($cliKernelClass)) {
         error_log("Критична помилка: клас {$cliKernelClass} не знайдено. Перевірте автозавантаження класів.");
         die("Помилка: клас {$cliKernelClass} не знайдено. Перевірте автозавантаження класів.\n");
@@ -1023,7 +1068,7 @@ if ($isCli) {
     $isInstallerRoute = is_string($path) && str_starts_with($path, '/install');
     $installedFlagFile = rtrim($rootDir, '/\\') . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'installed.flag';
     $isInstalled = file_exists($installedFlagFile);
-    
+
     if (!$isInstallerRoute && !$isInstalled) {
         if (function_exists('showInstallationRequired')) {
             showInstallationRequired();
@@ -1041,7 +1086,7 @@ if ($isCli) {
             exit;
         }
     }
-    
+
     $routerFile = $engineDir . DIRECTORY_SEPARATOR . 'core' . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'router.php';
     if (file_exists($routerFile) && is_readable($routerFile)) {
         require_once $routerFile;
@@ -1049,4 +1094,3 @@ if ($isCli) {
         throw new RuntimeException('Router file not found or not readable: ' . $routerFile);
     }
 }
-

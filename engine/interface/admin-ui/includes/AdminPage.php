@@ -78,11 +78,20 @@ class AdminPage
                     'code' => $e->getCode(),
                 ]);
             } else {
-                logger()->logError('Database connection error in AdminPage: ' . $e->getMessage(), [
-                    'exception' => $e,
-                    'host' => DB_HOST ?? 'unknown',
-                    'database' => DB_NAME ?? 'unknown',
-                ]);
+                if (function_exists('logError')) {
+                    logError('AdminPage: Database connection error', [
+                        'error' => $e->getMessage(),
+                        'exception' => $e,
+                        'host' => DB_HOST ?? 'unknown',
+                        'database' => DB_NAME ?? 'unknown',
+                    ]);
+                } else {
+                    logger()->logError('Database connection error in AdminPage: ' . $e->getMessage(), [
+                        'exception' => $e,
+                        'host' => DB_HOST ?? 'unknown',
+                        'database' => DB_NAME ?? 'unknown',
+                    ]);
+                }
                 http_response_code(500);
                 echo 'Database connection error: ' . Security::clean($e->getMessage());
                 exit;
@@ -268,7 +277,7 @@ class AdminPage
 
     /**
      * Встановлення хлібних крошок
-     * 
+     *
      * @param array $breadcrumbs Масив крошок: [['title' => '...', 'url' => '...'], ...]
      */
     protected function setBreadcrumbs(array $breadcrumbs)
@@ -281,11 +290,50 @@ class AdminPage
      */
     protected function verifyCsrf(): bool
     {
-        $token = $this->request()->post('csrf_token', '');
-        if (! SecurityHelper::verifyCsrfToken($token)) {
-            $this->setMessage('Помилка безпеки', 'danger');
+        // Переконуємося, що сесія запущена перед перевіркою CSRF
+        if (! \Session::isStarted()) {
+            \Session::start();
+            if (function_exists('logDebug')) {
+                logDebug('AdminPage::verifyCsrf: Session started for CSRF verification', [
+                    'session_id' => session_id(),
+                ]);
+            }
+        }
 
+        // Отримуємо токен з POST або GET
+        $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+
+        if (empty($token)) {
+            if (function_exists('logWarning')) {
+                logWarning('AdminPage::verifyCsrf: CSRF token is empty', [
+                    'has_post' => !empty($_POST),
+                    'has_get' => !empty($_GET),
+                    'post_keys' => array_keys($_POST ?? []),
+                    'session_id' => session_id(),
+                    'session_started' => \Session::isStarted(),
+                ]);
+            }
+            $this->setMessage('Помилка безпеки. CSRF токен відсутній.', 'danger');
             return false;
+        }
+
+        if (! SecurityHelper::verifyCsrfToken($token)) {
+            if (function_exists('logWarning')) {
+                logWarning('AdminPage::verifyCsrf: CSRF token verification failed', [
+                    'token_length' => strlen($token),
+                    'token_prefix' => substr($token, 0, 20) . '...',
+                    'session_id' => session_id(),
+                    'session_started' => \Session::isStarted(),
+                ]);
+            }
+            $this->setMessage('Помилка безпеки. Невірний CSRF токен.', 'danger');
+            return false;
+        }
+
+        if (function_exists('logDebug')) {
+            logDebug('AdminPage::verifyCsrf: CSRF token verified successfully', [
+                'session_id' => session_id(),
+            ]);
         }
 
         return true;

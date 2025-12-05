@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/ContainerInterface.php';
+require_once __DIR__ . '/../../Contracts/ContainerInterface.php';
 
 final class ServiceConfig
 {

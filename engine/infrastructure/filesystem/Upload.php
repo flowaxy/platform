@@ -145,8 +145,21 @@ class Upload
      */
     public function upload(array $file, ?string $customName = null): array
     {
+        if (function_exists('logDebug')) {
+            logDebug('Upload::upload: Starting file upload', [
+                'original_name' => $file['name'] ?? 'unknown',
+                'size' => $file['size'] ?? 0,
+                'type' => $file['type'] ?? 'unknown',
+            ]);
+        }
+
         // Проверка наличия файла
         if (! isset($file['tmp_name']) || ! is_uploaded_file($file['tmp_name'])) {
+            if (function_exists('logWarning')) {
+                logWarning('Upload::upload: File was not uploaded via HTTP POST', [
+                    'file_name' => $file['name'] ?? 'unknown',
+                ]);
+            }
             return [
                 'success' => false,
                 'file' => '',
@@ -156,15 +169,30 @@ class Upload
 
         // Проверка ошибок загрузки
         if ($file['error'] !== UPLOAD_ERR_OK) {
+            $errorMsg = $this->getUploadError($file['error']);
+            if (function_exists('logError')) {
+                logError('Upload::upload: Upload error', [
+                    'error_code' => $file['error'],
+                    'error_message' => $errorMsg,
+                    'file_name' => $file['name'] ?? 'unknown',
+                ]);
+            }
             return [
                 'success' => false,
                 'file' => '',
-                'error' => $this->getUploadError($file['error']),
+                'error' => $errorMsg,
             ];
         }
 
         // Проверка размера файла
         if ($file['size'] > $this->maxFileSize) {
+            if (function_exists('logWarning')) {
+                logWarning('Upload::upload: File size exceeds maximum', [
+                    'file_size' => $file['size'],
+                    'max_size' => $this->maxFileSize,
+                    'file_name' => $file['name'] ?? 'unknown',
+                ]);
+            }
             return [
                 'success' => false,
                 'file' => '',
@@ -179,6 +207,13 @@ class Upload
 
         // Проверка расширения
         if (! empty($this->allowedExtensions) && ! in_array($extension, $this->allowedExtensions, true)) {
+            if (function_exists('logWarning')) {
+                logWarning('Upload::upload: File extension not allowed', [
+                    'extension' => $extension,
+                    'allowed_extensions' => $this->allowedExtensions,
+                    'file_name' => $originalName,
+                ]);
+            }
             return [
                 'success' => false,
                 'file' => '',
@@ -207,6 +242,15 @@ class Upload
                     $allowedTypes = implode(', ', array_slice($this->allowedMimeTypes, 0, 5));
                     if (count($this->allowedMimeTypes) > 5) {
                         $allowedTypes .= '...';
+                    }
+
+                    if (function_exists('logWarning')) {
+                        logWarning('Upload::upload: MIME type not allowed', [
+                            'mime_type' => $mimeType,
+                            'real_mime_type' => $realMimeType,
+                            'extension' => $extension,
+                            'file_name' => $originalName,
+                        ]);
                     }
 
                     return [
@@ -254,6 +298,13 @@ class Upload
 
         // Перемещаем файл
         if (! @move_uploaded_file($file['tmp_name'], $destinationPath)) {
+            if (function_exists('logError')) {
+                logError('Upload::upload: Failed to move uploaded file', [
+                    'tmp_name' => $file['tmp_name'],
+                    'destination' => $destinationPath,
+                    'file_name' => $originalName,
+                ]);
+            }
             return [
                 'success' => false,
                 'file' => '',
@@ -263,12 +314,22 @@ class Upload
 
         @chmod($destinationPath, 0644);
 
+        if (function_exists('logInfo')) {
+            logInfo('Upload::upload: File uploaded successfully', [
+                'file' => $destinationPath,
+                'name' => $fileName,
+                'size' => $file['size'],
+                'mime_type' => $realMimeType ?? $mimeType,
+                'extension' => $extension,
+            ]);
+        }
+
         return [
             'success' => true,
             'file' => $destinationPath,
             'name' => $fileName,
             'size' => $file['size'],
-            'mime_type' => $realMimeType,
+            'mime_type' => $realMimeType ?? $mimeType,
             'extension' => $extension,
         ];
     }

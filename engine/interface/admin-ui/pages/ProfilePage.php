@@ -25,7 +25,7 @@ class ProfilePage extends AdminPage
             'Зміна логіну, email та пароля',
             'fas fa-user'
         );
-        
+
         // Додаємо хлібні крихти
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
@@ -79,7 +79,11 @@ class ProfilePage extends AdminPage
 
             return $user;
         } catch (Exception $e) {
-            logger()->logError('Error getting user: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ProfilePage: Error getting user', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Error getting user: ' . $e->getMessage(), ['exception' => $e]);
+            }
             $this->setMessage('Помилка завантаження даних користувача', 'danger');
 
             return null;
@@ -133,7 +137,11 @@ class ProfilePage extends AdminPage
                 return;
             }
         } catch (Exception $e) {
-            logger()->logError('Error checking username: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ProfilePage: Error checking username', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Error checking username: ' . $e->getMessage(), ['exception' => $e]);
+            }
             $this->setMessage('Помилка перевірки логіну', 'danger');
 
             return;
@@ -159,7 +167,11 @@ class ProfilePage extends AdminPage
                     return;
                 }
             } catch (Exception $e) {
-            logger()->logError('Error verifying password: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ProfilePage: Error verifying password', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Error verifying password: ' . $e->getMessage(), ['exception' => $e]);
+            }
                 $this->setMessage('Помилка перевірки пароля', 'danger');
 
                 return;
@@ -204,7 +216,11 @@ class ProfilePage extends AdminPage
             }
 
             $this->db->commit();
-            logger()->logInfo('Профіль оновлено', ['user_id' => $userId, 'username' => $username]);
+            if (function_exists('logInfo')) {
+                logInfo('ProfilePage: Profile updated', ['user_id' => $userId, 'username' => $username]);
+            } else {
+                logger()->logInfo('Профіль оновлено', ['user_id' => $userId, 'username' => $username]);
+            }
             $this->setMessage('Профіль успішно оновлено', 'success');
 
             // Редирект после сохранения для предотвращения повторного выполнения
@@ -212,7 +228,11 @@ class ProfilePage extends AdminPage
             exit;
         } catch (Exception $e) {
             $this->db->rollBack();
-            logger()->logError('Error saving profile: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ProfilePage: Error saving profile', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Error saving profile: ' . $e->getMessage(), ['exception' => $e]);
+            }
             $this->setMessage('Помилка при збереженні профілю', 'danger');
         }
     }

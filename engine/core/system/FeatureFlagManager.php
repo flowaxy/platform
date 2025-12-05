@@ -11,8 +11,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/FeatureFlagManagerInterface.php';
-require_once __DIR__ . '/../contracts/LoggerInterface.php';
+require_once __DIR__ . '/../../Contracts/FeatureFlagManagerInterface.php';
+require_once __DIR__ . '/../../Contracts/LoggerInterface.php';
+
+use Flowaxy\Core\Contracts\FeatureFlagManagerInterface;
+use Flowaxy\Core\Contracts\LoggerInterface;
 
 final class FeatureFlagManager implements FeatureFlagManagerInterface
 {

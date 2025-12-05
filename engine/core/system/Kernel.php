@@ -4,20 +4,26 @@
  * Базовий клас ядра системи Flowaxy CMS
  * Реалізує спільну логіку для HttpKernel та CliKernel
  *
- * @package Engine\Core\System
+ * @package Flowaxy\Core\System
  * @version 1.0.0 Alpha prerelease
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/KernelInterface.php';
-require_once __DIR__ . '/../contracts/ContainerInterface.php';
-require_once __DIR__ . '/../contracts/ServiceProviderInterface.php';
+namespace Flowaxy\Core\System;
+
+require_once __DIR__ . '/../../Contracts/KernelInterface.php';
+require_once __DIR__ . '/../../Contracts/ContainerInterface.php';
+require_once __DIR__ . '/../../Contracts/ServiceProviderInterface.php';
 require_once __DIR__ . '/ClassAutoloader.php';
-require_once __DIR__ . '/Container.php';
+require_once __DIR__ . '/ClassMapGenerator.php';
 require_once __DIR__ . '/ServiceConfig.php';
 require_once __DIR__ . '/ModuleManager.php';
 require_once __DIR__ . '/EnvironmentLoader.php';
+
+use Flowaxy\Core\Contracts\ContainerInterface;
+use Flowaxy\Core\Contracts\KernelInterface;
+use Flowaxy\Core\Contracts\ServiceProviderInterface;
 
 abstract class Kernel implements KernelInterface
 {
@@ -42,13 +48,24 @@ abstract class Kernel implements KernelInterface
     public function boot(): void
     {
         if ($this->booted) {
+            if (function_exists('logDebug')) {
+                logDebug('Kernel::boot: Kernel already booted');
+            }
             return;
+        }
+
+        if (function_exists('logDebug')) {
+            logDebug('Kernel::boot: Starting kernel boot', ['root_dir' => $this->rootDir]);
         }
 
         $this->createAutoloader();
         $this->createContainer();
 
         $this->booted = true;
+
+        if (function_exists('logInfo')) {
+            logInfo('Kernel::boot: Kernel booted successfully', ['root_dir' => $this->rootDir]);
+        }
     }
 
     /**
@@ -60,13 +77,22 @@ abstract class Kernel implements KernelInterface
             $this->boot();
         }
 
+        if (function_exists('logDebug')) {
+            logDebug('Kernel::configure: Configuring kernel');
+        }
+
         $this->loadEnvironmentConfig();
         $this->loadServiceConfig();
         $this->loadGlobalFunctions();
+
+        if (function_exists('logInfo')) {
+            logInfo('Kernel::configure: Kernel configured successfully');
+        }
     }
 
     /**
      * Реєстрація сервіс-провайдерів
+     * Оптимізовано: lazy loading провайдерів
      */
     public function registerProviders(): void
     {
@@ -74,32 +100,70 @@ abstract class Kernel implements KernelInterface
             $this->boot();
         }
 
+        if (function_exists('logDebug')) {
+            logDebug('Kernel::registerProviders: Starting provider registration');
+        }
+
         $this->serviceProviders = $this->getServiceProviders();
 
+        $registeredCount = 0;
         foreach ($this->serviceProviders as $providerClass) {
             if (! class_exists($providerClass)) {
+                if (function_exists('logWarning')) {
+                    logWarning('Kernel::registerProviders: Provider class not found', ['provider' => $providerClass]);
+                }
                 continue;
             }
 
-            /** @var ServiceProviderInterface $provider */
-            $provider = new $providerClass();
-            $provider->register($this->container);
+            try {
+                // Lazy loading: створюємо провайдер тільки коли потрібно
+                /** @var ServiceProviderInterface $provider */
+                $provider = new $providerClass();
+                $provider->register($this->container);
+                $registeredCount++;
+
+                if (function_exists('logDebug')) {
+                    logDebug('Kernel::registerProviders: Provider registered', ['provider' => $providerClass]);
+                }
+            } catch (\Exception $e) {
+                if (function_exists('logError')) {
+                    logError('Kernel::registerProviders: Failed to register provider', [
+                        'provider' => $providerClass,
+                        'error' => $e->getMessage(),
+                        'exception' => $e,
+                    ]);
+                }
+            }
+        }
+
+        if (function_exists('logInfo')) {
+            logInfo('Kernel::registerProviders: Providers registered', [
+                'total' => count($this->serviceProviders),
+                'registered' => $registeredCount,
+            ]);
         }
     }
 
     /**
      * Запуск сервіс-провайдерів
+     * Оптимізовано: кешування екземплярів провайдерів
      */
     public function bootProviders(): void
     {
+        $providerInstances = [];
+
         foreach ($this->serviceProviders as $providerClass) {
             if (! class_exists($providerClass)) {
                 continue;
             }
 
-            /** @var ServiceProviderInterface $provider */
-            $provider = new $providerClass();
-            $provider->boot($this->container);
+            // Кешуємо екземпляри провайдерів для уникнення повторного створення
+            if (!isset($providerInstances[$providerClass])) {
+                /** @var ServiceProviderInterface $provider */
+                $providerInstances[$providerClass] = new $providerClass();
+            }
+
+            $providerInstances[$providerClass]->boot($this->container);
         }
 
         // Запускаємо ModuleManager після провайдерів
@@ -151,6 +215,7 @@ abstract class Kernel implements KernelInterface
 
     /**
      * Створення контейнера залежностей
+     * Оптимізовано: використання правильного namespace
      */
     protected function createContainer(): void
     {
@@ -161,7 +226,15 @@ abstract class Kernel implements KernelInterface
             return;
         }
 
-        $this->container = new Container();
+        // Використовуємо повний namespace для Container
+        $containerClass = 'Flowaxy\Core\System\Container';
+        if (class_exists($containerClass)) {
+            $this->container = new $containerClass();
+        } else {
+            // Fallback для зворотної сумісності
+            $this->container = new Container();
+        }
+
         $GLOBALS['engineContainer'] = $this->container;
     }
 
@@ -172,13 +245,13 @@ abstract class Kernel implements KernelInterface
     {
         $projectRoot = dirname($this->rootDir);
         $this->environmentLoader = new EnvironmentLoader($projectRoot);
-        
+
         // Завантажуємо конфігурацію
         $envConfig = $this->environmentLoader->load();
-        
+
         // Зареєструємо EnvironmentLoader в контейнері для доступу
         $this->container->singleton(EnvironmentLoader::class, fn() => $this->environmentLoader);
-        
+
         // Зберігаємо environment в контейнері (використовуємо singleton для примітивних типів)
         $environment = $this->environmentLoader->getEnvironment();
         $this->container->singleton('environment', fn() => $environment);
@@ -202,7 +275,7 @@ abstract class Kernel implements KernelInterface
      */
     protected function loadGlobalFunctions(): void
     {
-        $functionsFile = $this->rootDir . '/core/support/functions.php';
+        $functionsFile = $this->rootDir . '/Support/functions.php';
         if (file_exists($functionsFile)) {
             require_once $functionsFile;
         }
@@ -224,11 +297,24 @@ abstract class Kernel implements KernelInterface
 
     /**
      * Реєстрація class map в автозавантажувачі
+     * Оптимізовано: спроба завантажити згенерований class map
      */
     protected function registerClassMap(): void
     {
-        $classMap = $this->getClassMap();
-        $this->autoloader->addClassMap($classMap);
+        // Спочатку намагаємося завантажити згенерований class map
+        $classMapFile = dirname($this->rootDir) . '/storage/cache/classmap.php';
+        if (file_exists($classMapFile)) {
+            $generatedMap = require $classMapFile;
+            if (is_array($generatedMap)) {
+                $this->autoloader->addClassMap($generatedMap);
+            }
+        }
+
+        // Додаємо додатковий class map з getClassMap() (для класів, які не в згенерованому map)
+        $additionalClassMap = $this->getClassMap();
+        if (!empty($additionalClassMap)) {
+            $this->autoloader->addClassMap($additionalClassMap);
+        }
     }
 
     /**

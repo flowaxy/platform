@@ -8,7 +8,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/ServiceProviderInterface.php';
+require_once __DIR__ . '/../../Contracts/ServiceProviderInterface.php';
+require_once __DIR__ . '/../../Contracts/ContainerInterface.php';
+
+use Flowaxy\Core\Contracts\ServiceProviderInterface;
+use Flowaxy\Core\Contracts\ContainerInterface;
 
 abstract class ServiceProvider implements ServiceProviderInterface
 {

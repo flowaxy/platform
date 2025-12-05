@@ -28,7 +28,7 @@ class ModuleLoader
         // Встановлюємо директорії модулів (старе та нове розташування)
         $engineRoot = dirname(__DIR__, 2);
         self::$moduleDirs = [
-            $engineRoot . '/core/support/managers/',
+            $engineRoot . '/Support/Managers/',
         ];
 
         // Завантажуємо тільки критично важливі модулі, які потрібні для роботи системи
@@ -63,7 +63,7 @@ class ModuleLoader
         if (empty(self::$moduleDirs)) {
             $engineRoot = dirname(__DIR__, 2);
             self::$moduleDirs = [
-                $engineRoot . '/core/support/managers/',
+                $engineRoot . '/Support/Managers/',
             ];
         }
 
@@ -80,7 +80,14 @@ class ModuleLoader
         // Перевіряємо існування файлу модуля
         if ($moduleFile === null) {
             $paths = array_map(fn ($dir) => $dir . $moduleName . '.php', self::$moduleDirs);
-            error_log('Module file not found: ' . implode(' | ', $paths));
+            if (function_exists('logWarning')) {
+                logWarning('ModuleLoader::loadModule: Module file not found', [
+                    'module' => $moduleName,
+                    'paths' => $paths,
+                ]);
+            } else {
+                error_log('Module file not found: ' . implode(' | ', $paths));
+            }
 
             return null;
         }
@@ -123,7 +130,7 @@ class ModuleLoader
             // Переконуємося, що BaseModule завантажено (автозавантажувач має завантажити)
             if (! class_exists('BaseModule')) {
                 $engineRoot = dirname(__DIR__, 2);
-                $baseModuleFile = $engineRoot . '/core/support/base/BaseModule.php';
+                $baseModuleFile = $engineRoot . '/Support/Base/BaseModule.php';
                 if (file_exists($baseModuleFile)) {
                     require_once $baseModuleFile;
                 }
@@ -132,7 +139,7 @@ class ModuleLoader
             // Переконуємося, що Cache завантажено, щоб функція cache_remember() була доступна
             if (! class_exists('Cache')) {
                 $engineRoot = dirname(__DIR__, 2);
-                $cacheFile = $engineRoot . '/infrastructure/cache/Cache.php';
+                $cacheFile = $engineRoot . '/Cache/Cache.php';
                 if (file_exists($cacheFile)) {
                     require_once $cacheFile;
                 }
@@ -142,7 +149,14 @@ class ModuleLoader
 
             // Перевіряємо, що клас існує
             if (! class_exists($moduleName)) {
-                error_log("Module class {$moduleName} not found after loading file: {$moduleFile}");
+                if (function_exists('logError')) {
+                    logError('ModuleLoader::loadModuleFile: Module class not found after loading file', [
+                        'module' => $moduleName,
+                        'file' => $moduleFile,
+                    ]);
+                } else {
+                    error_log("Module class {$moduleName} not found after loading file: {$moduleFile}");
+                }
 
                 return null;
             }
@@ -151,7 +165,14 @@ class ModuleLoader
 
             // Перевіряємо, що модуль наслідується від BaseModule
             if (! ($module instanceof BaseModule)) {
-                error_log("Module {$moduleName} does not extend BaseModule, skipping");
+                if (function_exists('logWarning')) {
+                    logWarning('ModuleLoader::loadModuleFile: Module does not extend BaseModule, skipping', [
+                        'module' => $moduleName,
+                        'file' => $moduleFile,
+                    ]);
+                } else {
+                    error_log("Module {$moduleName} does not extend BaseModule, skipping");
+                }
 
                 return null;
             }
@@ -163,12 +184,28 @@ class ModuleLoader
 
             self::$loadedModules[$moduleName] = $module;
 
+            if (function_exists('logInfo')) {
+                logInfo('ModuleLoader::loadModuleFile: Module loaded successfully', [
+                    'module' => $moduleName,
+                    'file' => $moduleFile,
+                ]);
+            }
+
             // Логуємо завантаження модуля через хук
             hook_dispatch('module_loaded', $moduleName);
 
             return $module;
         } catch (Exception | Error $e) {
-            error_log("Error loading module {$moduleName}: " . $e->getMessage());
+            if (function_exists('logError')) {
+                logError('ModuleLoader::loadModuleFile: Error loading module', [
+                    'module' => $moduleName,
+                    'file' => $moduleFile,
+                    'error' => $e->getMessage(),
+                    'exception' => $e,
+                ]);
+            } else {
+                error_log("Error loading module {$moduleName}: " . $e->getMessage());
+            }
             hook_dispatch('module_error', [
                 'module' => $moduleName,
                 'message' => $e->getMessage(),

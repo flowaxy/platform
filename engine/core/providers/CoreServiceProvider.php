@@ -9,15 +9,28 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../system/ServiceProvider.php';
-require_once __DIR__ . '/../contracts/HookManagerInterface.php';
-require_once __DIR__ . '/../contracts/HookRegistryInterface.php';
-require_once __DIR__ . '/../contracts/ComponentRegistryInterface.php';
+// Завантажуємо HookRegistryInterface перед HookManagerInterface, оскільки HookManagerInterface extends HookRegistryInterface
+require_once __DIR__ . '/../../Contracts/HookRegistryInterface.php';
+require_once __DIR__ . '/../../Contracts/HookManagerInterface.php';
+require_once __DIR__ . '/../../Contracts/ComponentRegistryInterface.php';
 require_once __DIR__ . '/../system/ComponentRegistry.php';
+require_once __DIR__ . '/../system/HookManager.php';
+
+use Flowaxy\Core\Contracts\HookManagerInterface;
+use Flowaxy\Core\Contracts\HookRegistryInterface;
+use Flowaxy\Core\Contracts\ComponentRegistryInterface;
+use Flowaxy\Core\Contracts\ContainerInterface;
+use Flowaxy\Core\Contracts\LoggerInterface;
+use Flowaxy\Core\Contracts\FeatureFlagManagerInterface;
 
 final class CoreServiceProvider extends ServiceProvider
 {
     protected function registerBindings(): void
     {
+        if (function_exists('logDebug')) {
+            logDebug('CoreServiceProvider::registerBindings: Starting service registration');
+        }
+
         // Контейнер доступний також за своїм інтерфейсом
         $this->container->instance(ContainerInterface::class, $this->container);
 
@@ -32,6 +45,10 @@ final class CoreServiceProvider extends ServiceProvider
         $this->registerModuleManager();
         $this->registerTestService();
         $this->registerFeatureFlags();
+
+        if (function_exists('logInfo')) {
+            logInfo('CoreServiceProvider::registerBindings: All core services registered successfully');
+        }
     }
 
     private function registerDatabase(): void
@@ -53,9 +70,9 @@ final class CoreServiceProvider extends ServiceProvider
 
     private function registerHookManager(): void
     {
-        $this->container->singleton(HookManagerInterface::class, static fn () => new HookManager());
+        $this->container->singleton(HookManagerInterface::class, static fn () => new \Flowaxy\Core\System\HookManager());
         $this->container->singleton(HookRegistryInterface::class, fn () => $this->container->make(HookManagerInterface::class));
-        $this->container->singleton(HookManager::class, fn () => $this->container->make(HookManagerInterface::class));
+        $this->container->singleton(\Flowaxy\Core\System\HookManager::class, fn () => $this->container->make(HookManagerInterface::class));
     }
 
     private function registerComponentRegistry(): void
@@ -108,7 +125,7 @@ final class CoreServiceProvider extends ServiceProvider
 
     private function registerFeatureFlags(): void
     {
-        require_once __DIR__ . '/../contracts/FeatureFlagManagerInterface.php';
+        require_once __DIR__ . '/../../Contracts/FeatureFlagManagerInterface.php';
         require_once __DIR__ . '/../system/FeatureFlagManager.php';
 
         $this->container->singleton(FeatureFlagManagerInterface::class, function () {

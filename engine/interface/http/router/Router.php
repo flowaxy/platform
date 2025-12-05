@@ -488,12 +488,19 @@ class Router
         $uri = $this->getCurrentUri();
         $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         $methodRoutes = $this->routesByMethod[$method] ?? [];
-        
+
         // DEBUG: логуємо кожен запит
-        logger()->logDebug('Маршрутизація запиту', [
-            'method' => $method,
-            'uri' => $uri,
-        ]);
+        if (function_exists('logDebug')) {
+            logDebug('Router: Request routing', [
+                'method' => $method,
+                'uri' => $uri,
+            ]);
+        } else {
+            logger()->logDebug('Маршрутизація запиту', [
+                'method' => $method,
+                'uri' => $uri,
+            ]);
+        }
 
         // Якщо шлях порожній і немає маршруту для порожнього шляху, використовуємо маршрут за замовчуванням
         if (empty($uri) && ! $this->hasEmptyRoute($methodRoutes) && $this->defaultRoute !== null) {
@@ -626,7 +633,7 @@ class Router
             showHttpError(404);
             return;
         }
-        
+
         // Пряме підключення шаблону
         $templateFile = __DIR__ . '/../../errors/errors.php';
         if (file_exists($templateFile)) {
@@ -634,7 +641,7 @@ class Router
             require $templateFile;
             return;
         }
-        
+
         // Fallback якщо шаблон не знайдено
         echo '<!DOCTYPE html>
 <html lang="uk">

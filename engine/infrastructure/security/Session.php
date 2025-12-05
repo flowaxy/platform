@@ -87,7 +87,11 @@ class Session
                 // Якщо реальне з'єднання HTTP, але secure=true, вимикаємо secure для сумісності
                 if (! $realHttps) {
                     $isSecure = false;
-                    logger()->logWarning("Session: secure=true але з'єднання HTTP, вимикаємо прапорець secure для сумісності");
+                    if (function_exists('logWarning')) {
+                        logWarning("Session::start: secure=true but connection is HTTP, disabling secure flag for compatibility");
+                    } elseif (function_exists('logger')) {
+                        logger()->logWarning("Session: secure=true але з'єднання HTTP, вимикаємо прапорець secure для сумісності");
+                    }
                 }
             }
         }
@@ -97,7 +101,11 @@ class Session
         // Якщо SameSite=None, але secure=false, Edge блокує - змінюємо на Lax
         if ($samesite === 'None' && ! $isSecure) {
             $samesite = 'Lax';
-            logger()->logWarning('Session: SameSite=None потребує прапорець Secure, змінюємо на Lax для сумісності');
+            if (function_exists('logWarning')) {
+                logWarning('Session::start: SameSite=None requires Secure flag, changing to Lax for compatibility');
+            } elseif (function_exists('logger')) {
+                logger()->logWarning('Session: SameSite=None потребує прапорець Secure, змінюємо на Lax для сумісності');
+            }
         }
 
         session_name(self::$config['name']);
@@ -133,11 +141,38 @@ class Session
         ini_set('session.cookie_samesite', $samesite);
 
         if (! headers_sent()) {
+            // Зберігаємо старий session_id перед стартом, якщо сесія вже існує
+            $oldSessionId = session_id();
+            $sessionExists = !empty($oldSessionId);
+
             session_start();
             self::$started = true;
-        } elseif (class_exists('Logger')) {
-            // Логируем только критичные ошибки
-            Logger::getInstance()->logWarning('Session::start() - Headers already sent, cannot start session');
+
+            // Логуємо, чи сесія була відновлена або створена нова
+            if (function_exists('logDebug')) {
+                logDebug('Session::start: Session started', [
+                    'session_id' => session_id(),
+                    'old_session_id' => $oldSessionId,
+                    'session_restored' => $sessionExists && session_id() === $oldSessionId,
+                    'new_session' => !$sessionExists,
+                ]);
+            }
+
+            if (function_exists('logInfo')) {
+                logInfo('Session::start: Session started successfully', [
+                    'name' => self::$config['name'],
+                    'lifetime' => self::$config['lifetime'],
+                    'secure' => $isSecure,
+                    'samesite' => $samesite,
+                ]);
+            }
+        } else {
+            if (function_exists('logWarning')) {
+                logWarning('Session::start: Headers already sent, cannot start session');
+            } elseif (class_exists('Logger')) {
+                // Логируем только критичные ошибки
+                Logger::getInstance()->logWarning('Session::start() - Headers already sent, cannot start session');
+            }
         }
     }
 
@@ -224,7 +259,14 @@ class Session
     public static function destroy(): void
     {
         if (! self::$started) {
+            if (function_exists('logDebug')) {
+                logDebug('Session::destroy: Session not started, nothing to destroy');
+            }
             return;
+        }
+
+        if (function_exists('logInfo')) {
+            logInfo('Session::destroy: Destroying session');
         }
 
         $_SESSION = [];
@@ -252,7 +294,29 @@ class Session
     {
         self::ensureStarted();
 
-        return session_regenerate_id($deleteOldSession);
+        // Зберігаємо CSRF токен перед регенерацією, щоб він не був втрачений
+        $csrfToken = $_SESSION['csrf_token'] ?? null;
+
+        $result = session_regenerate_id($deleteOldSession);
+
+        // Відновлюємо CSRF токен після регенерації, якщо він був
+        if ($result && $csrfToken !== null) {
+            $_SESSION['csrf_token'] = $csrfToken;
+            if (function_exists('logDebug')) {
+                logDebug('Session::regenerate: CSRF token preserved after regeneration');
+            }
+        }
+
+        if ($result && function_exists('logInfo')) {
+            logInfo('Session::regenerate: Session ID regenerated', [
+                'delete_old' => $deleteOldSession,
+                'csrf_token_preserved' => $csrfToken !== null,
+            ]);
+        } elseif (!$result && function_exists('logError')) {
+            logError('Session::regenerate: Failed to regenerate session ID');
+        }
+
+        return $result;
     }
 
     /**

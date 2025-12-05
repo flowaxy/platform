@@ -99,7 +99,11 @@ class Response
 
         // Переконуємося, що заголовки ще не відправлені
         if (headers_sent($file, $line)) {
-            error_log("Response::json() викликано після відправки заголовків у {$file}:{$line}");
+            if (function_exists('logWarning')) {
+                logWarning("Response::json() called after headers sent", ['file' => $file, 'line' => $line]);
+            } else {
+                error_log("Response::json() викликано після відправки заголовків у {$file}:{$line}");
+            }
             // Намагаємося відправити JSON через JavaScript, якщо можливо
             echo '<script>if(typeof console !== "undefined") console.error("JSON response failed: headers already sent");</script>';
             exit;
@@ -112,7 +116,11 @@ class Response
             $this->content($jsonContent);
             $this->send();
         } catch (Exception $e) {
-            error_log('Помилка кодування JSON відповіді: ' . $e->getMessage());
+            if (function_exists('logError')) {
+                logError('Response: JSON encoding error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                error_log('Помилка кодування JSON відповіді: ' . $e->getMessage());
+            }
             // Відправляємо помилку у JSON форматі
             $this->status(500)->header('Content-Type', 'application/json; charset=UTF-8');
             $this->content(json_encode([
@@ -140,7 +148,7 @@ class Response
     {
         if (headers_sent()) {
             // Використовуємо Security клас для екранування
-            echo '<script>window.location.href="' . Security::clean($url) . '";</script>';
+            echo '<script>window.location.href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '";</script>';
 
             return;
         }
@@ -170,7 +178,7 @@ class Response
         $fileSize = filesize($filePath);
 
         $this->header('Content-Type', $mimeType)
-             ->header('Content-Disposition', 'attachment; filename="' . Security::sanitizeFilename($fileName) . '"')
+             ->header('Content-Disposition', 'attachment; filename="' . preg_replace('/[^a-zA-Z0-9._-]/', '_', $fileName) . '"')
              ->header('Content-Length', (string)$fileSize)
              ->send();
 
@@ -220,15 +228,69 @@ class Response
     /**
      * Встановлення security headers для захисту від атак
      *
-     * @param array $options Налаштування security headers
-     * @return self
-     */
-    /**
-     * @param array<string, mixed> $options
+     * @param array<string, mixed> $options Налаштування security headers
      * @return self
      */
     public function securityHeaders(array $options = []): self
     {
+        // Використовуємо клас SecurityHeaders, якщо доступний
+        $securityHeadersFile = dirname(__DIR__, 2) . '/infrastructure/security/SecurityHeaders.php';
+        if (file_exists($securityHeadersFile)) {
+            require_once dirname(__DIR__, 2) . '/infrastructure/security/CSPGenerator.php';
+            require_once $securityHeadersFile;
+
+            if (class_exists('SecurityHeaders')) {
+                try {
+                    $securityHeaders = new SecurityHeaders();
+
+                    // Застосовуємо опції, якщо передані
+                    if (!empty($options)) {
+                        if (isset($options['csp'])) {
+                            if (is_string($options['csp'])) {
+                                // Якщо передано рядок, створюємо CSP через callback
+                                $securityHeaders->setCSP(function($csp) use ($options) {
+                                    // Парсимо рядок CSP та встановлюємо директиви
+                                    // Поки що просто встановлюємо як рядок через addHeader
+                                });
+                                $securityHeaders->addHeader('Content-Security-Policy', $options['csp']);
+                            } else {
+                                $securityHeaders->setCSP($options['csp']);
+                            }
+                        }
+                        if (isset($options['x_frame_options'])) {
+                            $securityHeaders->addHeader('X-Frame-Options', $options['x_frame_options']);
+                        }
+                        if (isset($options['x_content_type_options'])) {
+                            $securityHeaders->addHeader('X-Content-Type-Options', $options['x_content_type_options']);
+                        }
+                        if (isset($options['x_xss_protection'])) {
+                            $securityHeaders->addHeader('X-XSS-Protection', $options['x_xss_protection']);
+                        }
+                        if (isset($options['referrer_policy'])) {
+                            $securityHeaders->addHeader('Referrer-Policy', $options['referrer_policy']);
+                        }
+                        if (isset($options['strict_transport_security'])) {
+                            $securityHeaders->addHeader('Strict-Transport-Security', $options['strict_transport_security']);
+                        }
+                        if (isset($options['permissions_policy'])) {
+                            $securityHeaders->addHeader('Permissions-Policy', $options['permissions_policy']);
+                        }
+                    }
+
+                    // Отримуємо всі заголовки та додаємо їх до відповіді
+                    $headers = $securityHeaders->getHeaders();
+                    foreach ($headers as $name => $value) {
+                        $this->header($name, $value);
+                    }
+
+                    return $this;
+                } catch (Throwable $e) {
+                    // Fallback до старої реалізації при помилці
+                }
+            }
+        }
+
+        // Fallback до старої реалізації
         $defaults = [
             'csp' => "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.gstatic.com data:;",
             'x_frame_options' => 'SAMEORIGIN',

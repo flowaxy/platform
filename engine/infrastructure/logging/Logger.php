@@ -10,7 +10,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../../core/contracts/LoggerInterface.php';
+require_once __DIR__ . '/../../Contracts/LoggerInterface.php';
+
+use Flowaxy\Core\Contracts\LoggerInterface;
 
 class Logger implements LoggerInterface
 {
@@ -102,7 +104,7 @@ class Logger implements LoggerInterface
                 'max_file_size' => $this->maxFileSize,
                 'max_files' => $this->maxFiles,
                 'retention_days' => 30,
-                'logging_levels' => 'DEBUG,INFO,WARNING,ERROR,CRITICAL',
+                'logging_levels' => 'WARNING,ERROR,CRITICAL', // За замовчуванням тільки важливі рівні
                 'logging_types' => 'file',
             ];
 
@@ -121,7 +123,7 @@ class Logger implements LoggerInterface
             'rotation_type' => 'size',
             'rotation_time' => 24,
             'rotation_time_unit' => 'hours',
-            'logging_levels' => 'DEBUG,INFO,WARNING,ERROR,CRITICAL',
+            'logging_levels' => 'WARNING,ERROR,CRITICAL', // За замовчуванням тільки важливі рівні
             'logging_types' => 'file',
         ];
 
@@ -148,7 +150,10 @@ class Logger implements LoggerInterface
 
                                 // Рівні логування (множественний вибір)
                                 if (isset($dbSettings['logging_levels']) && ! empty($dbSettings['logging_levels'])) {
-                                    $this->settings['logging_levels'] = $dbSettings['logging_levels'];
+                                    $this->settings['logging_levels'] = trim($dbSettings['logging_levels']);
+                                } else {
+                                    // Якщо не встановлено, використовуємо значення за замовчуванням
+                                    $this->settings['logging_levels'] = 'WARNING,ERROR,CRITICAL';
                                 }
 
                                 // Типи логування
@@ -189,7 +194,10 @@ class Logger implements LoggerInterface
                                 // Рівні логування (множественний вибір)
                                 $levelsStr = $settings->get('logging_levels', '');
                                 if (! empty($levelsStr)) {
-                                    $this->settings['logging_levels'] = $levelsStr;
+                                    $this->settings['logging_levels'] = trim($levelsStr);
+                                } else {
+                                    // Якщо не встановлено, використовуємо значення за замовчуванням
+                                    $this->settings['logging_levels'] = 'WARNING,ERROR,CRITICAL';
                                 }
 
                                 // Типи логування
@@ -269,7 +277,7 @@ class Logger implements LoggerInterface
     /**
      * Перезавантаження налаштувань з БД
      * Викликати після зміни налаштувань логування
-     * 
+     *
      * @return void
      */
     public function reloadSettings(): void
@@ -278,6 +286,17 @@ class Logger implements LoggerInterface
         self::$loadingSettings = false;
         $this->loadSettings();
         $this->settingsLoaded = true;
+    }
+
+    /**
+     * Очищення кешу налаштувань (викликати після зміни налаштувань логування)
+     *
+     * @return void
+     */
+    public function clearSettingsCache(): void
+    {
+        $this->settingsLoaded = false;
+        self::$loadingSettings = false;
     }
 
     /**
@@ -305,7 +324,8 @@ class Logger implements LoggerInterface
         $levelName = self::LEVEL_NAMES[$level] ?? 'UNKNOWN';
         $allowedLevels = $this->getAllowedLevels();
 
-        if (! in_array($levelName, $allowedLevels, true)) {
+        // Якщо список дозволених рівнів порожній або рівень не в списку - не логуємо
+        if (empty($allowedLevels) || ! in_array($levelName, $allowedLevels, true)) {
             return;
         }
 
@@ -533,6 +553,96 @@ class Logger implements LoggerInterface
     }
 
     /**
+     * Логування SQL запитів
+     *
+     * @param string $query SQL запит
+     * @param array $params Параметри запиту
+     * @param float|null $executionTime Час виконання в секундах
+     * @return void
+     */
+    public function logSql(string $query, array $params = [], ?float $executionTime = null): void
+    {
+        // Ліниве завантаження налаштувань
+        if (! $this->settingsLoaded) {
+            $this->loadSettings();
+            $this->settingsLoaded = true;
+        }
+
+        // Перевіряємо, чи дозволено логування SQL запитів
+        // Перевіряємо через logging_types (може містити 'sql_queries')
+        $loggingTypes = $this->getLoggingTypes();
+        $logSqlEnabled = in_array('sql_queries', $loggingTypes, true);
+
+        // Також перевіряємо окреме налаштування
+        if (! $logSqlEnabled && isset($this->settings['log_sql_queries'])) {
+            $logSqlEnabled = (bool)$this->settings['log_sql_queries'];
+        }
+
+        if (! $logSqlEnabled) {
+            return;
+        }
+
+        $context = [
+            'type' => 'sql',
+            'query' => $query,
+            'params' => $params,
+        ];
+
+        if ($executionTime !== null) {
+            $context['execution_time'] = $executionTime;
+            $message = sprintf('SQL Query (%.4fs): %s', $executionTime, $query);
+        } else {
+            $message = 'SQL Query: ' . $query;
+        }
+
+        // Логуємо як DEBUG з контекстом SQL
+        // Але перевіряємо, чи дозволено логування SQL окремо
+        // Якщо DEBUG вимкнено, але SQL логування увімкнено, все одно логуємо
+        if (in_array('DEBUG', $this->getAllowedLevels(), true)) {
+            $this->log(self::LEVEL_DEBUG, $message, $context);
+        } else {
+            // Якщо DEBUG вимкнено, але SQL логування увімкнено, логуємо як INFO
+            // Але тільки якщо INFO дозволено
+            if (in_array('INFO', $this->getAllowedLevels(), true)) {
+                $this->log(self::LEVEL_INFO, $message, $context);
+            }
+        }
+    }
+
+    /**
+     * Логування помилок бази даних
+     *
+     * @param string $message Повідомлення про помилку
+     * @param array $context Контекст (query, params, error_code, etc.)
+     * @return void
+     */
+    public function logDbError(string $message, array $context = []): void
+    {
+        // Ліниве завантаження налаштувань
+        if (! $this->settingsLoaded) {
+            $this->loadSettings();
+            $this->settingsLoaded = true;
+        }
+
+        // Перевіряємо, чи дозволено логування помилок БД
+        // Перевіряємо через logging_types (може містити 'db_errors')
+        $loggingTypes = $this->getLoggingTypes();
+        $logDbErrorsEnabled = in_array('db_errors', $loggingTypes, true);
+
+        // Також перевіряємо окреме налаштування
+        if (! $logDbErrorsEnabled && isset($this->settings['log_db_errors'])) {
+            $logDbErrorsEnabled = (bool)$this->settings['log_db_errors'];
+        }
+
+        if (! $logDbErrorsEnabled) {
+            return;
+        }
+
+        $context['type'] = 'db_error';
+        $this->log(self::LEVEL_ERROR, 'DB Error: ' . $message, $context);
+    }
+
+    /**
      * Отримання останніх записів логу
      *
      * @param int $lines Кількість рядків
@@ -651,8 +761,8 @@ class Logger implements LoggerInterface
             return array_map('trim', array_filter($levels));
         }
 
-        // Якщо налаштування не встановлено, дозволяємо всі рівні
-        return ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'];
+        // Якщо налаштування не встановлено, дозволяємо тільки важливі рівні за замовчуванням
+        return ['WARNING', 'ERROR', 'CRITICAL'];
     }
 
     /**
@@ -699,7 +809,7 @@ class Logger implements LoggerInterface
  *
  * @return LoggerInterface
  */
-function logger(): LoggerInterface
+function logger(): \Flowaxy\Core\Contracts\LoggerInterface
 {
     return Logger::getInstance();
 }

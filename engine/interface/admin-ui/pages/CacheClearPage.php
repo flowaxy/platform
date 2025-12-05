@@ -21,7 +21,7 @@ class CacheClearPage extends AdminPage
             Response::redirectStatic(UrlHelper::admin('dashboard'));
             exit;
         }
-        
+
         // Викликаємо батьківський конструктор тільки для AJAX запитів
         parent::__construct();
     }
@@ -38,7 +38,7 @@ class CacheClearPage extends AdminPage
         $session = sessionManager();
         $userId = (int)($session->get('admin_user_id') ?? 0);
         $hasAccess = ($userId === 1) || (function_exists('current_user_can') && current_user_can('admin.access'));
-        
+
         if (!$hasAccess) {
             $this->sendJsonResponse([
                 'success' => false,
@@ -58,7 +58,7 @@ class CacheClearPage extends AdminPage
 
         // Отримуємо дію
         $action = SecurityHelper::sanitizeInput($_POST['cache_action'] ?? '');
-        
+
         if (empty($action)) {
             $this->sendJsonResponse([
                 'success' => false,
@@ -77,8 +77,12 @@ class CacheClearPage extends AdminPage
                 ], 400)
             };
         } catch (Exception $e) {
-            logger()->logError('CacheClearPage error: ' . $e->getMessage(), ['exception' => $e]);
-            
+            if (function_exists('logError')) {
+                logError('CacheClearPage: Error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('CacheClearPage error: ' . $e->getMessage(), ['exception' => $e]);
+            }
+
             $this->sendJsonResponse([
                 'success' => false,
                 'error' => 'Помилка при очищенні кешу: ' . $e->getMessage()
@@ -92,12 +96,16 @@ class CacheClearPage extends AdminPage
     private function clearAllCache(): void
     {
         $cache = cache();
-        
+
         // Очищаємо файловий кеш
         $result = $cache->clear();
-        
+
         if ($result) {
-            logger()->logInfo('Кеш повністю очищено');
+            if (function_exists('logInfo')) {
+                logInfo('CacheClearPage: Cache cleared');
+            } else {
+                logger()->logInfo('Кеш повністю очищено');
+            }
             $this->sendJsonResponse([
                 'success' => true,
                 'message' => 'Весь кеш успішно очищено'
@@ -116,11 +124,15 @@ class CacheClearPage extends AdminPage
     private function clearExpiredCache(): void
     {
         $cache = cache();
-        
+
         // Очищаємо прострочений кеш
         $cleaned = $cache->cleanup();
-        
-        logger()->logInfo('Прострочений кеш очищено', ['cleaned_files' => $cleaned]);
+
+        if (function_exists('logInfo')) {
+            logInfo('CacheClearPage: Expired cache cleared', ['cleaned_files' => $cleaned]);
+        } else {
+            logger()->logInfo('Прострочений кеш очищено', ['cleaned_files' => $cleaned]);
+        }
         $this->sendJsonResponse([
             'success' => true,
             'message' => 'Прострочений кеш очищено. Видалено файлів: ' . $cleaned,
@@ -128,4 +140,3 @@ class CacheClearPage extends AdminPage
         ], 200);
     }
 }
-

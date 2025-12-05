@@ -49,7 +49,7 @@ class SiteSettingsPage extends AdminPage
             'fas fa-cog',
             $saveButton
         );
-        
+
         // Додаємо хлібні крихти
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
@@ -67,7 +67,7 @@ class SiteSettingsPage extends AdminPage
 
         // Отримання налаштувань
         $settings = $this->getSettings();
-        
+
         // Отримуємо список ролей для вибору ролі за замовчуванням
         $roles = [];
         if (class_exists('RoleManager')) {
@@ -75,10 +75,14 @@ class SiteSettingsPage extends AdminPage
                 $roleManager = RoleManager::getInstance();
                 $roles = $roleManager->getAllRoles();
             } catch (Exception $e) {
-                logger()->logError('SiteSettingsPage: Error loading roles: ' . $e->getMessage());
+                if (function_exists('logError')) {
+                    logError('SiteSettingsPage: Error loading roles', ['error' => $e->getMessage(), 'exception' => $e]);
+                } else {
+                    logger()->logError('SiteSettingsPage: Error loading roles: ' . $e->getMessage());
+                }
             }
         }
-        
+
         // Рендеримо сторінку
         $this->render([
             'settings' => $settings,
@@ -187,8 +191,15 @@ class SiteSettingsPage extends AdminPage
                     }
                     if (class_exists('Logger')) {
                         $loggerInstance = logger();
-                        if ($loggerInstance && method_exists($loggerInstance, 'reloadSettings')) {
-                            $loggerInstance->reloadSettings();
+                        if ($loggerInstance) {
+                            // Очищаємо кеш налаштувань Logger перед перезавантаженням
+                            if (method_exists($loggerInstance, 'clearSettingsCache')) {
+                                $loggerInstance->clearSettingsCache();
+                            }
+                            // Перезавантажуємо налаштування Logger
+                            if (method_exists($loggerInstance, 'reloadSettings')) {
+                                $loggerInstance->reloadSettings();
+                            }
                         }
                     }
 
@@ -213,9 +224,15 @@ class SiteSettingsPage extends AdminPage
                         }
                     }
 
-                    logger()->logInfo('Налаштування сайту збережено', [
-                        'changed_keys' => array_keys($sanitizedSettings),
-                    ]);
+                    if (function_exists('logInfo')) {
+                        logInfo('SiteSettingsPage: Site settings saved', [
+                            'changed_keys' => array_keys($sanitizedSettings),
+                        ]);
+                    } else {
+                        logger()->logInfo('Налаштування сайту збережено', [
+                            'changed_keys' => array_keys($sanitizedSettings),
+                        ]);
+                    }
                     $this->setMessage('Налаштування успішно збережено', 'success');
                     // Редирект після збереження для запобігання повторного виконання
                     $this->redirect('site-settings');
@@ -228,7 +245,11 @@ class SiteSettingsPage extends AdminPage
             }
         } catch (Exception $e) {
             $this->setMessage('Помилка при збереженні налаштувань: ' . $e->getMessage(), 'danger');
-            logger()->logError('Settings save error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('SiteSettingsPage: Settings save error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Settings save error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -323,7 +344,7 @@ class SiteSettingsPage extends AdminPage
                 // Об'єднуємо налаштування: спочатку дефолтні, потім з БД (БД має пріоритет)
                 // Це гарантує, що якщо налаштування є в БД (навіть зі значенням '0' або порожнім рядком), воно буде використано
                 $result = array_merge($defaultSettings, $settings);
-                
+
                 // ВАЖЛИВО: Для timezone використовуємо тільки значення з БД, без дефолтів
                 // Перевіряємо, чи є ключ в БД, і використовуємо його значення (навіть якщо порожнє)
                 // Якщо ключа немає в БД, залишаємо порожнє значення
@@ -341,7 +362,7 @@ class SiteSettingsPage extends AdminPage
                     if (is_string($result['logging_levels'])) {
                         // Розбиваємо рядок на масив, обрізаємо пробіли та фільтруємо порожні значення
                         $levelsArray = array_filter(
-                            array_map('trim', explode(',', $result['logging_levels'])),
+                            array_map('trim', explode(',', (string)$result['logging_levels'])),
                             function ($value) {
                                 return ! empty($value);
                             }
@@ -355,7 +376,7 @@ class SiteSettingsPage extends AdminPage
                     } else {
                         // Якщо це вже масив, очищаємо від порожніх значень та пробілів
                         $cleanedLevels = array_filter(
-                            array_map('trim', $result['logging_levels']),
+                            array_map('trim', (array)$result['logging_levels']),
                             function ($value) {
                                 return ! empty($value);
                             }
@@ -379,7 +400,11 @@ class SiteSettingsPage extends AdminPage
 
                 return $result;
             } catch (Exception $e) {
-                logger()->logError('Settings load error: ' . $e->getMessage(), ['exception' => $e]);
+                if (function_exists('logError')) {
+                    logError('SiteSettingsPage: Settings load error', ['error' => $e->getMessage(), 'exception' => $e]);
+                } else {
+                    logger()->logError('Settings load error: ' . $e->getMessage(), ['exception' => $e]);
+                }
                 // Конвертуємо рядки в масиви для множинного вибору в дефолтних налаштуваннях
                 $defaultSettings['logging_levels'] = explode(',', $defaultSettings['logging_levels']);
                 $defaultSettings['logging_types'] = explode(',', $defaultSettings['logging_types']);

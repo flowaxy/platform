@@ -66,7 +66,7 @@ class ThemesPage extends AdminPage
             'fas fa-palette',
             $headerButtons
         );
-        
+
         // Додаємо хлібні крихти
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
@@ -206,7 +206,11 @@ class ThemesPage extends AdminPage
             cache_forget('active_theme_slug');
             cache_forget('active_theme');
 
-            logger()->logInfo('Тему активовано', ['theme' => $themeSlug]);
+            if (function_exists('logInfo')) {
+                logInfo('ThemesPage: Theme activated', ['theme' => $themeSlug]);
+            } else {
+                logger()->logInfo('Тему активовано', ['theme' => $themeSlug]);
+            }
             $this->setMessage('Тему успішно активовано', 'success');
             $this->redirect('themes');
             exit;
@@ -280,7 +284,11 @@ class ThemesPage extends AdminPage
             $compileResult = themeManager()->compileScss($themeSlug, true);
             if (! $compileResult) {
                 // Попереджаємо, але не блокуємо активацію
-                logger()->logWarning("ThemeManager: SCSS compilation failed for theme: {$themeSlug}");
+                if (function_exists('logWarning')) {
+                    logWarning("ThemesPage: SCSS compilation failed", ['theme' => $themeSlug]);
+                } else {
+                    logger()->logWarning("ThemeManager: SCSS compilation failed for theme: {$themeSlug}");
+                }
             }
         }
 
@@ -367,10 +375,10 @@ class ThemesPage extends AdminPage
         if (!is_array($files['name'])) {
             return [$files];
         }
-        
+
         $normalized = [];
         $count = count($files['name']);
-        
+
         for ($i = 0; $i < $count; $i++) {
             if ($files['error'][$i] === UPLOAD_ERR_OK) {
                 $normalized[] = [
@@ -382,10 +390,10 @@ class ThemesPage extends AdminPage
                 ];
             }
         }
-        
+
         return $normalized;
     }
-    
+
     /**
      * Очистка slug від GitHub-суфіксів
      * theme-starter-main -> theme-starter
@@ -394,13 +402,13 @@ class ThemesPage extends AdminPage
     private function cleanGitHubSuffix(string $slug): string
     {
         $suffixes = ['-main', '-master', '-dev', '-develop', '-release', '-stable', '-latest', '-beta', '-alpha'];
-        
+
         foreach ($suffixes as $suffix) {
             if (str_ends_with(strtolower($slug), $suffix)) {
                 return substr($slug, 0, -strlen($suffix));
             }
         }
-        
+
         return $slug;
     }
 
@@ -421,18 +429,18 @@ class ThemesPage extends AdminPage
 
         // Нормалізуємо масив файлів
         $normalizedFiles = $this->normalizeFilesArray($files['theme_file']);
-        
+
         if (empty($normalizedFiles)) {
             return ['success' => false, 'error' => 'Файл не вибрано', 'reload' => false];
         }
-        
+
         $successCount = 0;
         $errors = [];
         $installedThemes = [];
-        
+
         // Параметр перезапису
         $overwrite = !empty($data['overwrite']);
-        
+
         foreach ($normalizedFiles as $file) {
             $result = $this->processThemeUpload($file, $overwrite);
             if ($result['success']) {
@@ -442,31 +450,42 @@ class ThemesPage extends AdminPage
                 $errors[] = $file['name'] . ': ' . $result['error'];
             }
         }
-        
+
         // Очищаємо кеш тем
         themeManager()->clearThemeCache();
-        
+
         if ($successCount === 0) {
-            logger()->logWarning('Помилка встановлення тем', ['errors' => $errors]);
+            if (function_exists('logWarning')) {
+                logWarning('ThemesPage: Theme installation errors', ['errors' => $errors]);
+            } else {
+                logger()->logWarning('Помилка встановлення тем', ['errors' => $errors]);
+            }
             return ['success' => false, 'error' => implode("\n", $errors), 'reload' => false];
         }
-        
-        logger()->logInfo('Теми встановлено', [
-            'count' => $successCount,
-            'themes' => $installedThemes,
-        ]);
-        
+
+        if (function_exists('logInfo')) {
+            logInfo('ThemesPage: Themes installed', [
+                'count' => $successCount,
+                'themes' => $installedThemes,
+            ]);
+        } else {
+            logger()->logInfo('Теми встановлено', [
+                'count' => $successCount,
+                'themes' => $installedThemes,
+            ]);
+        }
+
         $message = "Встановлено тем: {$successCount}";
         if (!empty($errors)) {
             $message .= "\nПомилки:\n" . implode("\n", $errors);
         }
-        
+
         return ['success' => true, 'message' => $message, 'reload' => true];
     }
-    
+
     /**
      * Обробка одного файлу теми
-     * 
+     *
      * @param array $file Файл
      * @param bool $overwrite Перезаписати існуючу тему
      * @return array
@@ -649,7 +668,11 @@ class ThemesPage extends AdminPage
 
                 if (! is_dir($targetDirPath)) {
                     if (! @mkdir($targetDirPath, 0755, true)) {
-                        logger()->logError("Failed to create directory: {$targetDirPath}");
+                        if (function_exists('logError')) {
+                            logError("ThemesPage: Failed to create directory", ['path' => $targetDirPath]);
+                        } else {
+                            logger()->logError("Failed to create directory: {$targetDirPath}");
+                        }
                         continue;
                     }
                 }
@@ -658,7 +681,11 @@ class ThemesPage extends AdminPage
                     $zip->extractFile($entryName, $targetPath);
                     $extracted++;
                 } catch (Exception $e) {
-                    logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e]);
+                    if (function_exists('logError')) {
+                        logError("ThemesPage: Failed to extract file", ['entry' => $entryName, 'error' => $e->getMessage(), 'exception' => $e]);
+                    } else {
+                        logger()->logError("Failed to extract file {$entryName}: " . $e->getMessage(), ['exception' => $e]);
+                    }
                 }
             }
 
@@ -685,7 +712,11 @@ class ThemesPage extends AdminPage
                 @unlink($uploadedFile);
             }
 
-            logger()->logError('Theme upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            if (function_exists('logError')) {
+                logError('ThemesPage: Theme upload error', ['error' => $e->getMessage(), 'exception' => $e, 'trace' => $e->getTraceAsString()]);
+            } else {
+                logger()->logError('Theme upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            }
 
             return ['success' => false, 'error' => $e->getMessage()];
         }
@@ -932,7 +963,11 @@ class ThemesPage extends AdminPage
                 @unlink($uploadedFile);
             }
 
-            logger()->logError('Theme upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            if (function_exists('logError')) {
+                logError('ThemesPage: Theme upload error', ['error' => $e->getMessage(), 'exception' => $e, 'trace' => $e->getTraceAsString()]);
+            } else {
+                logger()->logError('Theme upload error: ' . $e->getMessage(), ['exception' => $e, 'trace' => $e->getTraceAsString()]);
+            }
             $this->sendJsonResponse(['success' => false, 'error' => 'Помилка: ' . $e->getMessage()], 500);
         }
     }
@@ -1218,7 +1253,11 @@ class ThemesPage extends AdminPage
                 $stmt->execute([$themeSlug]);
             }
         } catch (Exception $e) {
-            logger()->logError('Error deleting theme settings: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ThemesPage: Error deleting theme settings', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Error deleting theme settings: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
 
         // Видаляємо папку теми
@@ -1228,12 +1267,20 @@ class ThemesPage extends AdminPage
             // Очищаємо кеш тем
             themeManager()->clearThemeCache();
 
-            logger()->logInfo('Тему видалено', ['theme' => $themeSlug]);
+            if (function_exists('logInfo')) {
+                logInfo('ThemesPage: Theme deleted', ['theme' => $themeSlug]);
+            } else {
+                logger()->logInfo('Тему видалено', ['theme' => $themeSlug]);
+            }
             $this->setMessage('Тему успішно видалено', 'success');
             $this->redirect('themes');
             exit;
         } catch (Exception $e) {
-            logger()->logError('Theme delete error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('ThemesPage: Theme delete error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('Theme delete error: ' . $e->getMessage(), ['exception' => $e]);
+            }
             $this->setMessage('Помилка при видаленні теми: ' . $e->getMessage(), 'danger');
         }
     }

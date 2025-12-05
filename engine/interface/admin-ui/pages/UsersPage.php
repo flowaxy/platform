@@ -37,7 +37,7 @@ class UsersPage extends AdminPage
             'Управління користувачами системи',
             'fas fa-users'
         );
-        
+
         $this->setBreadcrumbs([
             ['title' => 'Головна', 'url' => UrlHelper::admin('dashboard')],
             ['title' => 'Налаштування', 'url' => UrlHelper::admin('settings')],
@@ -104,10 +104,10 @@ class UsersPage extends AdminPage
 
             foreach ($rows as &$row) {
                 $row['is_active'] = (bool)$row['is_active'];
-                $row['role_ids'] = !empty($row['role_ids']) 
-                    ? json_decode($row['role_ids'], true) ?? [] 
+                $row['role_ids'] = !empty($row['role_ids'])
+                    ? json_decode($row['role_ids'], true) ?? []
                     : [];
-                
+
                 // Отримуємо ролі користувача
                 if (!empty($row['role_ids']) && $this->roleRepository) {
                     $userRoles = [];
@@ -127,7 +127,11 @@ class UsersPage extends AdminPage
 
             return $rows;
         } catch (Exception $e) {
-            logger()->logError('UsersPage getUsers error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: getUsers error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage getUsers error: ' . $e->getMessage(), ['exception' => $e]);
+            }
             return [];
         }
     }
@@ -149,7 +153,11 @@ class UsersPage extends AdminPage
             ');
             return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
         } catch (Exception $e) {
-            logger()->logError('UsersPage getAllRoles error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: getAllRoles error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage getAllRoles error: ' . $e->getMessage(), ['exception' => $e]);
+            }
             return [];
         }
     }
@@ -215,8 +223,8 @@ class UsersPage extends AdminPage
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
 
             // Підготовка role_ids
-            $roleIdsJson = !empty($roleIds) && is_array($roleIds) 
-                ? json_encode(array_map('intval', $roleIds)) 
+            $roleIdsJson = !empty($roleIds) && is_array($roleIds)
+                ? json_encode(array_map('intval', $roleIds))
                 : null;
 
             // Створюємо користувача
@@ -226,12 +234,20 @@ class UsersPage extends AdminPage
             ');
             $stmt->execute([$username, $email, $passwordHash, $roleIdsJson]);
 
-            logger()->logInfo('Користувача створено', ['username' => $username, 'email' => $email]);
+            if (function_exists('logInfo')) {
+                logInfo('UsersPage: User created', ['username' => $username, 'email' => $email]);
+            } else {
+                logger()->logInfo('Користувача створено', ['username' => $username, 'email' => $email]);
+            }
             $this->setMessage('Користувача успішно створено', 'success');
             $this->redirect('users');
         } catch (Exception $e) {
             $this->setMessage('Помилка при створенні користувача: ' . $e->getMessage(), 'danger');
-            logger()->logError('UsersPage createUser error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: createUser error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage createUser error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -286,24 +302,32 @@ class UsersPage extends AdminPage
             }
 
             // Підготовка role_ids
-            $roleIdsJson = !empty($roleIds) && is_array($roleIds) 
-                ? json_encode(array_map('intval', $roleIds)) 
+            $roleIdsJson = !empty($roleIds) && is_array($roleIds)
+                ? json_encode(array_map('intval', $roleIds))
                 : null;
 
             // Оновлюємо користувача
             $stmt = $this->db->prepare('
-                UPDATE users 
+                UPDATE users
                 SET email = ?, is_active = ?, role_ids = ?
                 WHERE id = ?
             ');
             $stmt->execute([$email, $isActive, $roleIdsJson, $userIdToUpdate]);
 
-            logger()->logInfo('Користувача оновлено', ['user_id' => $userIdToUpdate, 'email' => $email]);
+            if (function_exists('logInfo')) {
+                logInfo('UsersPage: User updated', ['user_id' => $userIdToUpdate, 'email' => $email]);
+            } else {
+                logger()->logInfo('Користувача оновлено', ['user_id' => $userIdToUpdate, 'email' => $email]);
+            }
             $this->setMessage('Користувача успішно оновлено', 'success');
             $this->redirect('users');
         } catch (Exception $e) {
             $this->setMessage('Помилка при оновленні користувача: ' . $e->getMessage(), 'danger');
-            logger()->logError('UsersPage updateUser error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: updateUser error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage updateUser error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -354,7 +378,11 @@ class UsersPage extends AdminPage
             $this->redirect('users');
         } catch (Exception $e) {
             $this->setMessage('Помилка при зміні пароля: ' . $e->getMessage(), 'danger');
-            logger()->logError('UsersPage changePassword error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: changePassword error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage changePassword error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 
@@ -406,12 +434,20 @@ class UsersPage extends AdminPage
             $stmt = $this->db->prepare('DELETE FROM users WHERE id = ?');
             $stmt->execute([$userIdToDelete]);
 
-            logger()->logInfo('Користувача видалено', ['user_id' => $userIdToDelete]);
+            if (function_exists('logInfo')) {
+                logInfo('UsersPage: User deleted', ['user_id' => $userIdToDelete]);
+            } else {
+                logger()->logInfo('Користувача видалено', ['user_id' => $userIdToDelete]);
+            }
             $this->setMessage('Користувача успішно видалено', 'success');
             $this->redirect('users');
         } catch (Exception $e) {
             $this->setMessage('Помилка при видаленні користувача: ' . $e->getMessage(), 'danger');
-            logger()->logError('UsersPage deleteUser error: ' . $e->getMessage(), ['exception' => $e]);
+            if (function_exists('logError')) {
+                logError('UsersPage: deleteUser error', ['error' => $e->getMessage(), 'exception' => $e]);
+            } else {
+                logger()->logError('UsersPage deleteUser error: ' . $e->getMessage(), ['exception' => $e]);
+            }
         }
     }
 }

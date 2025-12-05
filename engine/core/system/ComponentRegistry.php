@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/ComponentRegistryInterface.php';
+require_once __DIR__ . '/../../Contracts/ComponentRegistryInterface.php';
+
+use Flowaxy\Core\Contracts\ComponentRegistryInterface;
 
 final class ComponentRegistry implements ComponentRegistryInterface
 {

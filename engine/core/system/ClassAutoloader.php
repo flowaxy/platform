@@ -3,13 +3,19 @@
 /**
  * Клас для лінивого автозавантаження системних класів.
  *
- * @package Engine\System
+ * @package Flowaxy\Core\System
+ * @version 1.0.0 Alpha prerelease
  */
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../contracts/AutoloaderInterface.php';
-require_once __DIR__ . '/../contracts/LoggerInterface.php';
+namespace Flowaxy\Core\System;
+
+require_once __DIR__ . '/../../Contracts/AutoloaderInterface.php';
+require_once __DIR__ . '/../../Contracts/LoggerInterface.php';
+
+use Flowaxy\Core\Contracts\AutoloaderInterface;
+use Flowaxy\Core\Contracts\LoggerInterface;
 
 final class ClassAutoloader implements AutoloaderInterface
 {
@@ -46,8 +52,33 @@ final class ClassAutoloader implements AutoloaderInterface
         'loaded' => 0,
     ];
 
+    private bool $classMapLoaded = false;
+
     public function __construct(private readonly string $rootDir)
     {
+        $this->loadClassMapIfExists();
+    }
+
+    /**
+     * Завантаження class map з файлу, якщо він існує
+     *
+     * @return void
+     */
+    private function loadClassMapIfExists(): void
+    {
+        if ($this->classMapLoaded) {
+            return;
+        }
+
+        $classMapFile = $this->rootDir . '/storage/config/classmap.php';
+
+        if (file_exists($classMapFile)) {
+            $classMap = require $classMapFile;
+            if (is_array($classMap)) {
+                $this->addClassMap($classMap);
+                $this->classMapLoaded = true;
+            }
+        }
     }
 
     public function register(bool $prepend = false): void

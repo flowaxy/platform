@@ -10,10 +10,25 @@ final class ActivatePluginService
 
     public function execute(string $slug): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('ActivatePluginService::execute: Activating plugin', ['slug' => $slug]);
+        }
+
         if ($slug === '') {
+            if (function_exists('logWarning')) {
+                logWarning('ActivatePluginService::execute: Invalid slug');
+            }
             return false;
         }
 
-        return $this->plugins->activate($slug);
+        $result = $this->plugins->activate($slug);
+
+        if ($result && function_exists('logInfo')) {
+            logInfo('ActivatePluginService::execute: Plugin activated successfully', ['slug' => $slug]);
+        } elseif (!$result && function_exists('logError')) {
+            logError('ActivatePluginService::execute: Failed to activate plugin', ['slug' => $slug]);
+        }
+
+        return $result;
     }
 }

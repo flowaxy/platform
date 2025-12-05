@@ -73,11 +73,19 @@ class ApiController
     public function me(): void
     {
         if (! $this->handler->authenticate()) {
-            logger()->logDebug('API аутентифікація невдала', ['endpoint' => '/api/me']);
+            if (function_exists('logDebug')) {
+                logDebug('ApiController: API authentication failed', ['endpoint' => '/api/me']);
+            } else {
+                logger()->logDebug('API аутентифікація невдала', ['endpoint' => '/api/me']);
+            }
             return;
         }
 
-        logger()->logDebug('API запит /me', ['authenticated' => true]);
+        if (function_exists('logDebug')) {
+            logDebug('ApiController: API request /me', ['authenticated' => true]);
+        } else {
+            logger()->logDebug('API запит /me', ['authenticated' => true]);
+        }
         $keyData = $this->handler->getAuthenticatedKey();
         if ($keyData === null) {
             $this->handler->sendError('Не вдалося отримати дані ключа', 500);

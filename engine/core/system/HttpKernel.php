@@ -4,11 +4,13 @@
  * HTTP ядро системи Flowaxy CMS
  * Обробляє HTTP запити через роутер
  *
- * @package Engine\Core\System
+ * @package Flowaxy\Core\System
  * @version 1.0.0 Alpha prerelease
  */
 
 declare(strict_types=1);
+
+namespace Flowaxy\Core\System;
 
 require_once __DIR__ . '/Kernel.php';
 
@@ -31,6 +33,16 @@ final class HttpKernel extends Kernel
      */
     public function serve(): void
     {
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $requestMethod = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+
+        if (function_exists('logDebug')) {
+            logDebug('HttpKernel::serve: Processing HTTP request', [
+                'method' => $requestMethod,
+                'uri' => $requestUri,
+            ]);
+        }
+
         if (! $this->isBooted()) {
             $this->boot();
             $this->configure();
@@ -53,6 +65,13 @@ final class HttpKernel extends Kernel
 
         // Обробляємо запит через роутер
         $this->dispatchRequest();
+
+        if (function_exists('logInfo')) {
+            logInfo('HttpKernel::serve: Request processed successfully', [
+                'method' => $requestMethod,
+                'uri' => $requestUri,
+            ]);
+        }
     }
 
     /**
@@ -73,7 +92,7 @@ final class HttpKernel extends Kernel
 
             // Завантажуємо TimezoneManager та отримуємо timezone з БД
             // Підключаємо functions.php, який завантажує TimezoneManager
-            $functionsFile = $this->rootDir . '/engine/core/support/functions.php';
+            $functionsFile = $this->rootDir . '/Support/functions.php';
             if (file_exists($functionsFile)) {
                 require_once $functionsFile;
             }
@@ -82,11 +101,11 @@ final class HttpKernel extends Kernel
             if (function_exists('getTimezoneFromDatabase')) {
                 try {
                     $tz = getTimezoneFromDatabase();
-                    
+
                     // Автоматичне оновлення старого часового поясу на новий
                     if ($tz === 'Europe/Kiev') {
                         $tz = 'Europe/Kyiv';
-                        
+
                         // Оновлюємо в налаштуваннях
                         if (class_exists('SettingsManager') && function_exists('settingsManager')) {
                             try {
@@ -98,7 +117,7 @@ final class HttpKernel extends Kernel
                             }
                         }
                     }
-                    
+
                     $timezone = $tz;
                 } catch (Exception $e) {
                     if (class_exists('Logger')) {
@@ -123,7 +142,7 @@ final class HttpKernel extends Kernel
 
             set_exception_handler(function (\Throwable $e): void {
                 Logger::getInstance()->logException($e);
-                
+
                 // Використовуємо функцію для відображення сторінки помилки
                 if (function_exists('showError500Page')) {
                     showError500Page($e);
@@ -144,7 +163,7 @@ final class HttpKernel extends Kernel
                 $error = error_get_last();
                 if ($error && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_PARSE], true)) {
                     Logger::getInstance()->logCritical('Критична помилка: ' . $error['message'], ['file' => $error['file'], 'line' => $error['line']]);
-                    
+
                     // Відображаємо сторінку помилки, якщо функція доступна
                     if (function_exists('showError500Page')) {
                         showError500Page(null, [
@@ -232,8 +251,8 @@ final class HttpKernel extends Kernel
     protected function getClassMap(): array
     {
         return [
-            'BaseModule' => 'core/support/base/BaseModule.php',
-            'BasePlugin' => 'core/support/base/BasePlugin.php',
+            'BaseModule' => 'Support/Base/BaseModule.php',
+            'BasePlugin' => 'Support/Base/BasePlugin.php',
             'Ini' => 'infrastructure/filesystem/Ini.php',
             'Json' => 'infrastructure/filesystem/Json.php',
             'Zip' => 'infrastructure/filesystem/Zip.php',
@@ -244,17 +263,17 @@ final class HttpKernel extends Kernel
             'Image' => 'infrastructure/filesystem/Image.php',
             'Upload' => 'infrastructure/filesystem/Upload.php',
             'MimeType' => 'infrastructure/filesystem/MimeType.php',
-            'Cache' => 'infrastructure/cache/Cache.php',
-            'Database' => 'infrastructure/persistence/Database.php',
+            'Cache' => 'Cache/Cache.php',
+            'Database' => 'Database/Database.php',
             'Logger' => 'infrastructure/logging/Logger.php',
             'Config' => 'infrastructure/config/Config.php',
             'SystemConfig' => 'infrastructure/config/SystemConfig.php',
             'EnvironmentLoader' => 'core/system/EnvironmentLoader.php',
-            'UrlHelper' => 'core/support/helpers/UrlHelper.php',
-            'DatabaseHelper' => 'core/support/helpers/DatabaseHelper.php',
-            'SecurityHelper' => 'core/support/helpers/SecurityHelper.php',
+            'UrlHelper' => 'Support/Helpers/UrlHelper.php',
+            'DatabaseHelper' => 'Support/Helpers/DatabaseHelper.php',
+            'SecurityHelper' => 'Support/Helpers/SecurityHelper.php',
             'ScssCompiler' => 'infrastructure/compilers/ScssCompiler.php',
-            'Validator' => 'core/support/validation/Validator.php',
+            'Validator' => 'Support/Validation/Validator.php',
             'Security' => 'infrastructure/security/Security.php',
             'Hash' => 'infrastructure/security/Hash.php',
             'Encryption' => 'infrastructure/security/Encryption.php',
@@ -267,12 +286,12 @@ final class HttpKernel extends Kernel
             'ApiHandler' => 'interface/http/controllers/ApiHandler.php',
             'ApiController' => 'interface/http/controllers/ApiController.php',
             'RouterManager' => 'interface/http/router/RouterManager.php',
-            'CookieManager' => 'core/support/managers/CookieManager.php',
-            'SessionManager' => 'core/support/managers/SessionManager.php',
-            'StorageManager' => 'core/support/managers/StorageManager.php',
-            'StorageFactory' => 'core/support/managers/StorageFactory.php',
-            'ThemeManager' => 'core/support/managers/ThemeManager.php',
-            'RoleManager' => 'core/support/managers/RoleManager.php',
+            'CookieManager' => 'Support/Managers/CookieManager.php',
+            'SessionManager' => 'Support/Managers/SessionManager.php',
+            'StorageManager' => 'Support/Managers/StorageManager.php',
+            'StorageFactory' => 'Support/Managers/StorageFactory.php',
+            'ThemeManager' => 'Support/Managers/ThemeManager.php',
+            'RoleManager' => 'Support/Managers/RoleManager.php',
             'View' => 'interface/ui/View.php',
             'Mail' => 'infrastructure/mail/Mail.php',
             'ModalHandler' => 'interface/ui/ModalHandler.php',
@@ -285,12 +304,12 @@ final class HttpKernel extends Kernel
             'CoreServiceProvider' => 'core/providers/CoreServiceProvider.php',
             'ThemeServiceProvider' => 'core/providers/ThemeServiceProvider.php',
             'AuthServiceProvider' => 'core/providers/AuthServiceProvider.php',
-            'HookType' => 'core/system/hooks/HookType.php',
-            'HookDefinition' => 'core/system/hooks/HookDefinition.php',
-            'HookListener' => 'core/system/hooks/HookListener.php',
+            'HookType' => 'Hooks/HookType.php',
+            'HookDefinition' => 'Hooks/HookDefinition.php',
+            'HookListener' => 'Hooks/HookListener.php',
             'ComponentRegistry' => 'core/system/ComponentRegistry.php',
             'PluginModuleServiceProvider' => 'core/providers/PluginModuleServiceProvider.php',
-            'SettingsManager' => 'core/support/managers/SettingsManager.php',
+            'SettingsManager' => 'Support/Managers/SettingsManager.php',
             'Theme' => 'domain/content/Theme.php',
             'ThemeRepositoryInterface' => 'domain/content/ThemeRepositoryInterface.php',
             'ThemeSettingsRepositoryInterface' => 'domain/content/ThemeSettingsRepositoryInterface.php',
@@ -315,13 +334,13 @@ final class HttpKernel extends Kernel
             'DeactivatePluginService' => 'application/content/DeactivatePluginService.php',
             'TogglePluginService' => 'application/content/TogglePluginService.php',
             'UninstallPluginService' => 'application/content/UninstallPluginService.php',
-            'ThemeRepository' => 'infrastructure/persistence/ThemeRepository.php',
-            'ThemeSettingsRepository' => 'infrastructure/persistence/ThemeSettingsRepository.php',
-            'AdminUserRepository' => 'infrastructure/persistence/AdminUserRepository.php',
-            'AdminRoleRepository' => 'infrastructure/persistence/AdminRoleRepository.php',
+            'ThemeRepository' => 'Database/ThemeRepository.php',
+            'ThemeSettingsRepository' => 'Database/ThemeSettingsRepository.php',
+            'AdminUserRepository' => 'Database/AdminUserRepository.php',
+            'AdminRoleRepository' => 'Database/AdminRoleRepository.php',
             'PluginFilesystem' => 'infrastructure/filesystem/PluginFilesystem.php',
-            'PluginCacheManager' => 'infrastructure/cache/PluginCacheManager.php',
-            'PluginRepository' => 'infrastructure/persistence/PluginRepository.php',
+            'PluginCacheManager' => 'Cache/PluginCacheManager.php',
+            'PluginRepository' => 'Database/PluginRepository.php',
             'LoginPage' => 'interface/admin-ui/pages/LoginPage.php',
             'LogoutPage' => 'interface/admin-ui/pages/LogoutPage.php',
             'DashboardPage' => 'interface/admin-ui/pages/DashboardPage.php',
@@ -340,16 +359,16 @@ final class HttpKernel extends Kernel
             // Removed: DevelopmentPage - deleted
             'TestService' => 'core/system/TestService.php',
             'MigrationRunner' => 'core/system/MigrationRunner.php',
-            'Facade' => 'core/support/facades/Facade.php',
-            'App' => 'core/support/facades/App.php',
-            'Hooks' => 'core/support/facades/Hooks.php',
-            'Plugin' => 'core/support/facades/Plugin.php',
-            'Theme' => 'core/support/facades/Theme.php',
-            'Role' => 'core/support/facades/Role.php',
-            'Log' => 'core/support/facades/Log.php',
-            'SessionFacade' => 'core/support/facades/Session.php',
-            'CookieFacade' => 'core/support/facades/Cookie.php',
-            'CacheFacade' => 'core/support/facades/Cache.php',
+            'Facade' => 'Support/Facades/Facade.php',
+            'App' => 'Support/Facades/App.php',
+            'Hooks' => 'Support/Facades/Hooks.php',
+            'Plugin' => 'Support/Facades/Plugin.php',
+            'Theme' => 'Support/Facades/Theme.php',
+            'Role' => 'Support/Facades/Role.php',
+            'Log' => 'Support/Facades/Log.php',
+            'SessionFacade' => 'Support/Facades/Session.php',
+            'CookieFacade' => 'Support/Facades/Cookie.php',
+            'CacheFacade' => 'Support/Facades/Cache.php',
         ];
     }
 
@@ -364,15 +383,15 @@ final class HttpKernel extends Kernel
             $this->rootDir . '/core/',
             $this->rootDir . '/core/bootstrap/',
             $this->rootDir . '/core/providers/',
-            $this->rootDir . '/core/contracts/',
+            $this->rootDir . '/Contracts/',
             $this->rootDir . '/core/system/',
-            $this->rootDir . '/core/support/',
-            $this->rootDir . '/core/support/base/',
-            $this->rootDir . '/core/support/helpers/',
-            $this->rootDir . '/core/support/managers/',
-            $this->rootDir . '/core/support/validation/',
-            $this->rootDir . '/core/support/facades/',
-            $this->rootDir . '/core/support/security/',
+            $this->rootDir . '/Support/',
+            $this->rootDir . '/Support/Base/',
+            $this->rootDir . '/Support/Helpers/',
+            $this->rootDir . '/Support/Managers/',
+            $this->rootDir . '/Support/Validation/',
+            $this->rootDir . '/Support/Facades/',
+            $this->rootDir . '/Support/Security/',
             $this->rootDir . '/domain/',
             $this->rootDir . '/domain/content/',
             $this->rootDir . '/domain/shared/',
@@ -381,8 +400,8 @@ final class HttpKernel extends Kernel
             $this->rootDir . '/application/security/',
             $this->rootDir . '/application/testing/',
             $this->rootDir . '/infrastructure/',
-            $this->rootDir . '/infrastructure/persistence/',
-            $this->rootDir . '/infrastructure/cache/',
+            $this->rootDir . '/Database/',
+            $this->rootDir . '/Cache/',
             $this->rootDir . '/infrastructure/config/',
             $this->rootDir . '/infrastructure/logging/',
             $this->rootDir . '/infrastructure/filesystem/',

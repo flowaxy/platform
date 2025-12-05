@@ -69,18 +69,38 @@ class File implements FileInterface
      */
     public function read(): string
     {
+        if (function_exists('logDebug')) {
+            logDebug('File::read: Reading file', ['file' => $this->filePath]);
+        }
+
         if (! $this->exists()) {
+            if (function_exists('logError')) {
+                logError('File::read: File does not exist', ['file' => $this->filePath]);
+            }
             throw new Exception("Файл не існує: {$this->filePath}");
         }
 
         if (! is_readable($this->filePath)) {
+            if (function_exists('logError')) {
+                logError('File::read: File is not readable', ['file' => $this->filePath]);
+            }
             throw new Exception("Файл недоступний для читання: {$this->filePath}");
         }
 
         $content = @file_get_contents($this->filePath);
 
         if ($content === false) {
+            if (function_exists('logError')) {
+                logError('File::read: Failed to read file', ['file' => $this->filePath]);
+            }
             throw new Exception("Не вдалося прочитати файл: {$this->filePath}");
+        }
+
+        if (function_exists('logInfo')) {
+            logInfo('File::read: File read successfully', [
+                'file' => $this->filePath,
+                'size' => strlen($content),
+            ]);
         }
 
         return $content;
@@ -96,17 +116,36 @@ class File implements FileInterface
      */
     public function write(string $content, bool $append = false): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('File::write: Writing file', [
+                'file' => $this->filePath,
+                'append' => $append,
+                'size' => strlen($content),
+            ]);
+        }
+
         $this->ensureDirectory();
 
         $flags = $append ? FILE_APPEND | LOCK_EX : LOCK_EX;
         $result = @file_put_contents($this->filePath, $content, $flags);
 
         if ($result === false) {
+            if (function_exists('logError')) {
+                logError('File::write: Failed to write file', ['file' => $this->filePath]);
+            }
             throw new Exception("Не вдалося записати файл: {$this->filePath}");
         }
 
         // Пытаемся установить права доступа, но не критично, если не получится
         $this->setPermissions(0644);
+
+        if (function_exists('logInfo')) {
+            logInfo('File::write: File written successfully', [
+                'file' => $this->filePath,
+                'append' => $append,
+                'bytes_written' => $result,
+            ]);
+        }
 
         return true;
     }
@@ -120,18 +159,41 @@ class File implements FileInterface
      */
     public function copy(string $destinationPath): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('File::copy: Copying file', [
+                'source' => $this->filePath,
+                'destination' => $destinationPath,
+            ]);
+        }
+
         if (! $this->exists()) {
+            if (function_exists('logError')) {
+                logError('File::copy: Source file does not exist', ['file' => $this->filePath]);
+            }
             throw new Exception("Вихідний файл не існує: {$this->filePath}");
         }
 
         $this->ensureDirectory($destinationPath);
 
         if (! @copy($this->filePath, $destinationPath)) {
+            if (function_exists('logError')) {
+                logError('File::copy: Failed to copy file', [
+                    'source' => $this->filePath,
+                    'destination' => $destinationPath,
+                ]);
+            }
             throw new Exception("Не вдалося скопіювати файл з '{$this->filePath}' в '{$destinationPath}'");
         }
 
         // Пытаемся установить права доступа, но не критично, если не получится
         $this->setPermissionsOnPath($destinationPath, 0644);
+
+        if (function_exists('logInfo')) {
+            logInfo('File::copy: File copied successfully', [
+                'source' => $this->filePath,
+                'destination' => $destinationPath,
+            ]);
+        }
 
         return true;
     }
@@ -145,17 +207,40 @@ class File implements FileInterface
      */
     public function move(string $destinationPath): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('File::move: Moving file', [
+                'source' => $this->filePath,
+                'destination' => $destinationPath,
+            ]);
+        }
+
         if (! $this->exists()) {
+            if (function_exists('logError')) {
+                logError('File::move: Source file does not exist', ['file' => $this->filePath]);
+            }
             throw new Exception("Вихідний файл не існує: {$this->filePath}");
         }
 
         $this->ensureDirectory($destinationPath);
 
         if (! @rename($this->filePath, $destinationPath)) {
+            if (function_exists('logError')) {
+                logError('File::move: Failed to move file', [
+                    'source' => $this->filePath,
+                    'destination' => $destinationPath,
+                ]);
+            }
             throw new Exception("Не вдалося перемістити файл з '{$this->filePath}' в '{$destinationPath}'");
         }
 
         $this->filePath = $destinationPath;
+
+        if (function_exists('logInfo')) {
+            logInfo('File::move: File moved successfully', [
+                'source' => $this->filePath,
+                'destination' => $destinationPath,
+            ]);
+        }
 
         return true;
     }
@@ -168,12 +253,26 @@ class File implements FileInterface
      */
     public function delete(): bool
     {
+        if (function_exists('logDebug')) {
+            logDebug('File::delete: Deleting file', ['file' => $this->filePath]);
+        }
+
         if (! $this->exists()) {
+            if (function_exists('logDebug')) {
+                logDebug('File::delete: File does not exist', ['file' => $this->filePath]);
+            }
             return true;
         }
 
         if (! @unlink($this->filePath)) {
+            if (function_exists('logError')) {
+                logError('File::delete: Failed to delete file', ['file' => $this->filePath]);
+            }
             throw new Exception("Не вдалося видалити файл: {$this->filePath}");
+        }
+
+        if (function_exists('logInfo')) {
+            logInfo('File::delete: File deleted successfully', ['file' => $this->filePath]);
         }
 
         return true;
