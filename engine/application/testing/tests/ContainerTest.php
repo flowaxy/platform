@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+namespace Flowaxy\Core\Application\Testing\Tests;
+
+use Flowaxy\Core\System\Container;
+use TestCase;
+
 final class ContainerTest extends TestCase
 {
     public function testSingletonReturnsSameInstance(): void

@@ -2,6 +2,11 @@
 
 declare(strict_types=1);
 
+namespace Flowaxy\Core\Application\Testing\Tests;
+
+use Flowaxy\Core\System\HookManager;
+use TestCase;
+
 final class HookManagerTest extends TestCase
 {
     public function testDispatchCallsActionListeners(): void
