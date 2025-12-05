@@ -4,11 +4,13 @@
  * Клас для безпеки
  * Захист від XSS, CSRF, SQL ін'єкцій та інших атак
  *
- * @package Engine\Classes\Security
+ * @package Flowaxy\Core\Infrastructure\Security
  * @version 1.0.0 Alpha prerelease
  */
 
 declare(strict_types=1);
+
+namespace Flowaxy\Core\Infrastructure\Security;
 
 class Security
 {
@@ -44,19 +46,126 @@ class Security
     }
 
     /**
+     * Розширена санітизація вводу з валідацією типів даних
+     *
+     * @param mixed $data Дані для санітизації
+     * @param string $type Тип даних (string, int, float, email, url, html)
+     * @param array<string, mixed> $options Опції валідації
+     * @return mixed Санітизовані дані
+     */
+    public static function sanitize(mixed $data, string $type = 'string', array $options = []): mixed
+    {
+        if (is_array($data)) {
+            return array_map(fn ($item) => self::sanitize($item, $type, $options), $data);
+        }
+
+        return match ($type) {
+            'int', 'integer' => filter_var($data, FILTER_SANITIZE_NUMBER_INT),
+            'float', 'double' => filter_var($data, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION),
+            'email' => self::sanitizeEmail($data, $options),
+            'url' => self::sanitizeUrl($data, $options),
+            'html' => strip_tags($data, $options['allowed_tags'] ?? '<p><br><strong><em><ul><ol><li><a>'),
+            'string' => self::clean($data, $options['strict'] ?? false),
+            default => self::clean($data, $options['strict'] ?? false),
+        };
+    }
+
+    /**
+     * Валідація даних за правилами
+     *
+     * @param mixed $data Дані для валідації
+     * @param array<string, mixed> $rules Правила валідації
+     * @return array<string, string> Помилки валідації (порожній масив якщо валідація пройшла)
+     */
+    public static function validate(mixed $data, array $rules): array
+    {
+        $errors = [];
+
+        foreach ($rules as $field => $ruleSet) {
+            $value = is_array($data) ? ($data[$field] ?? null) : $data;
+            $ruleArray = is_array($ruleSet) ? $ruleSet : explode('|', $ruleSet);
+
+            foreach ($ruleArray as $rule) {
+                $ruleParts = explode(':', $rule);
+                $ruleName = $ruleParts[0];
+                $ruleValue = $ruleParts[1] ?? null;
+
+                match ($ruleName) {
+                    'required' => self::validateRequired($value, $field, $errors),
+                    'email' => self::validateEmail($value, $field, $errors),
+                    'url' => self::validateUrl($value, $field, $errors),
+                    'min' => self::validateMin($value, $field, $ruleValue, $errors),
+                    'max' => self::validateMax($value, $field, $ruleValue, $errors),
+                    'numeric' => self::validateNumeric($value, $field, $errors),
+                    default => null,
+                };
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
      * Генерація CSRF токена
      *
      * @return string
      */
     public static function csrfToken(): string
     {
-        $session = sessionManager();
-
-        if (! $session->has('csrf_token')) {
-            $session->set('csrf_token', Hash::token(32));
+        // Переконуємося, що сесія запущена
+        if (! \Session::isStarted()) {
+            \Session::start();
         }
 
-        return $session->get('csrf_token');
+        $session = sessionManager();
+        if ($session === null) {
+            if (function_exists('logError')) {
+                logError('Security::csrfToken: sessionManager() returned null');
+            } else {
+                error_log('Security::csrfToken: sessionManager() returned null');
+            }
+            return '';
+        }
+
+        if (! $session->has('csrf_token')) {
+            $token = \Hash::token(32);
+            $session->set('csrf_token', $token);
+            if (function_exists('logDebug')) {
+                logDebug('Security::csrfToken: Generated new CSRF token', [
+                    'token_prefix' => substr($token, 0, 20) . '...',
+                    'token_length' => strlen($token),
+                    'session_id' => session_id(),
+                ]);
+            } elseif (function_exists('logger')) {
+                logger()->logDebug('Security::csrfToken: Generated new token: ' . substr($token, 0, 20) . '...');
+            } else {
+                error_log('Security::csrfToken: Generated new token: ' . substr($token, 0, 20) . '...');
+            }
+        } else {
+            // Логуємо, якщо токен вже існує
+            if (function_exists('logDebug')) {
+                logDebug('Security::csrfToken: Using existing CSRF token from session', [
+                    'session_id' => session_id(),
+                ]);
+            }
+        }
+
+        $token = $session->get('csrf_token');
+        if (empty($token)) {
+            if (function_exists('logWarning')) {
+                logWarning('Security::csrfToken: Token is empty after get(), generating new one', [
+                    'session_id' => session_id(),
+                    'session_has_token' => $session->has('csrf_token'),
+                ]);
+            } else {
+                error_log('Security::csrfToken: Token is empty after get()');
+            }
+            // Генеруємо новий токен якщо він порожній
+            $token = \Hash::token(32);
+            $session->set('csrf_token', $token);
+        }
+
+        return $token;
     }
 
     /**
@@ -68,32 +177,95 @@ class Security
     public static function verifyCsrfToken(?string $token = null): bool
     {
         // Переконуємося, що сесія запущена
-        if (! Session::isStarted()) {
-            Session::start();
+        if (! \Session::isStarted()) {
+            \Session::start();
+        }
+
+        if (function_exists('logDebug')) {
+            logDebug('Security::verifyCsrfToken: Verifying CSRF token');
         }
 
         $session = sessionManager();
+        if ($session === null) {
+            if (function_exists('logError')) {
+                logError('Security::verifyCsrfToken: sessionManager() returned null');
+            } else {
+                error_log('Security::verifyCsrfToken: sessionManager() returned null');
+            }
+            return false;
+        }
+
         $sessionToken = $session->get('csrf_token');
 
         if (empty($sessionToken)) {
-            error_log('Security::verifyCsrfToken: Session token is empty');
-
+            if (function_exists('logWarning')) {
+                logWarning('Security::verifyCsrfToken: Session token is empty');
+            } else {
+                error_log('Security::verifyCsrfToken: Session token is empty');
+            }
             return false;
         }
 
-        $token = $token ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+        // Отримуємо токен з запиту
+        // Спочатку перевіряємо переданий параметр, потім POST, потім GET
+        if ($token === null) {
+            $token = $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? '';
+        }
 
         if (empty($token)) {
-            error_log('Security::verifyCsrfToken: Token from request is empty');
-
+            if (function_exists('logWarning')) {
+                logWarning('Security::verifyCsrfToken: Token from request is empty', [
+                    'has_post' => !empty($_POST),
+                    'has_get' => !empty($_GET),
+                    'post_keys' => array_keys($_POST ?? []),
+                    'get_keys' => array_keys($_GET ?? []),
+                    'session_id' => session_id(),
+                ]);
+            } else {
+                error_log('Security::verifyCsrfToken: Token from request is empty');
+                error_log('Security::verifyCsrfToken: POST data: ' . json_encode($_POST));
+            }
             return false;
         }
 
-        $result = Hash::equals($sessionToken, $token);
+        // Детальне логування для діагностики
+        if (function_exists('logDebug')) {
+            logDebug('Security::verifyCsrfToken: Comparing tokens', [
+                'session_token_prefix' => substr($sessionToken, 0, 20) . '...',
+                'session_token_length' => strlen($sessionToken),
+                'request_token_prefix' => substr($token, 0, 20) . '...',
+                'request_token_length' => strlen($token),
+                'session_id' => session_id(),
+            ]);
+        }
+
+        $result = \Hash::equals($sessionToken, $token);
         if (! $result) {
-            error_log('Security::verifyCsrfToken: Tokens do not match');
-            error_log('Security::verifyCsrfToken: Session token: ' . substr($sessionToken, 0, 20) . '...');
-            error_log('Security::verifyCsrfToken: Request token: ' . substr($token, 0, 20) . '...');
+            if (function_exists('logWarning')) {
+                logWarning('Security::verifyCsrfToken: CSRF token mismatch', [
+                    'session_token_prefix' => substr($sessionToken, 0, 20) . '...',
+                    'session_token_length' => strlen($sessionToken),
+                    'request_token_prefix' => substr($token, 0, 20) . '...',
+                    'request_token_length' => strlen($token),
+                    'session_id' => session_id(),
+                    'session_data_keys' => array_keys($_SESSION ?? []),
+                ]);
+            } else {
+                error_log('Security::verifyCsrfToken: Tokens do not match');
+                error_log('Security::verifyCsrfToken: Session token: ' . substr($sessionToken, 0, 20) . '... (length: ' . strlen($sessionToken) . ')');
+                error_log('Security::verifyCsrfToken: Request token: ' . substr($token, 0, 20) . '... (length: ' . strlen($token) . ')');
+                error_log('Security::verifyCsrfToken: Session ID: ' . session_id());
+            }
+        } else {
+            if (function_exists('logDebug')) {
+                logDebug('Security::verifyCsrfToken: CSRF token verified successfully', [
+                    'session_id' => session_id(),
+                ]);
+            } elseif (function_exists('logger')) {
+                logger()->logDebug('Security::verifyCsrfToken: Tokens match successfully');
+            } else {
+                error_log('Security::verifyCsrfToken: Tokens match successfully');
+            }
         }
 
         return $result;
@@ -123,6 +295,38 @@ class Security
             ['\\\\', '\\n', '\\r', '\\0', '\\Z', "\\'", '\\"'],
             $string
         );
+    }
+
+    /**
+     * Санітизація email
+     *
+     * @param mixed $data Дані для санітизації
+     * @param array<string, mixed> $options Опції
+     * @return string|null
+     */
+    private static function sanitizeEmail(mixed $data, array $options): ?string
+    {
+        $email = filter_var($data, FILTER_SANITIZE_EMAIL);
+        if (!empty($options['validate']) && !self::isValidEmail($email)) {
+            return null;
+        }
+        return $email;
+    }
+
+    /**
+     * Санітизація URL
+     *
+     * @param mixed $data Дані для санітизації
+     * @param array<string, mixed> $options Опції
+     * @return string|null
+     */
+    private static function sanitizeUrl(mixed $data, array $options): ?string
+    {
+        $url = filter_var($data, FILTER_SANITIZE_URL);
+        if (!empty($options['validate']) && !self::isValidUrl($url)) {
+            return null;
+        }
+        return $url;
     }
 
     /**
@@ -292,5 +496,97 @@ class Security
     {
         $session = sessionManager();
         $session->remove('rate_limit_' . md5($key));
+    }
+
+    /**
+     * Валідація обов'язкового поля
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateRequired(mixed $value, string $field, array &$errors): void
+    {
+        if (empty($value) && $value !== '0') {
+            $errors[$field] = "Поле {$field} обов'язкове";
+        }
+    }
+
+    /**
+     * Валідація email
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateEmail(mixed $value, string $field, array &$errors): void
+    {
+        if (!empty($value) && !self::isValidEmail((string)$value)) {
+            $errors[$field] = "Поле {$field} має бути валідною email адресою";
+        }
+    }
+
+    /**
+     * Валідація URL
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateUrl(mixed $value, string $field, array &$errors): void
+    {
+        if (!empty($value) && !self::isValidUrl((string)$value)) {
+            $errors[$field] = "Поле {$field} має бути валідною URL адресою";
+        }
+    }
+
+    /**
+     * Валідація мінімальної довжини
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param string|null $ruleValue Мінімальна довжина
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateMin(mixed $value, string $field, ?string $ruleValue, array &$errors): void
+    {
+        if (!empty($value) && $ruleValue !== null && strlen((string)$value) < (int)$ruleValue) {
+            $errors[$field] = "Поле {$field} має містити мінімум {$ruleValue} символів";
+        }
+    }
+
+    /**
+     * Валідація максимальної довжини
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param string|null $ruleValue Максимальна довжина
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateMax(mixed $value, string $field, ?string $ruleValue, array &$errors): void
+    {
+        if (!empty($value) && $ruleValue !== null && strlen((string)$value) > (int)$ruleValue) {
+            $errors[$field] = "Поле {$field} має містити максимум {$ruleValue} символів";
+        }
+    }
+
+    /**
+     * Валідація числового значення
+     *
+     * @param mixed $value Значення
+     * @param string $field Назва поля
+     * @param array<string, string> $errors Масив помилок (по посиланню)
+     * @return void
+     */
+    private static function validateNumeric(mixed $value, string $field, array &$errors): void
+    {
+        if (!empty($value) && !is_numeric($value)) {
+            $errors[$field] = "Поле {$field} має бути числом";
+        }
     }
 }
